@@ -1,1 +1,1 @@
-# IceStalker---hackathon
+# IceStalker-hackathon
