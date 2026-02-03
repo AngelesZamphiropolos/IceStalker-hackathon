@@ -3,6 +3,11 @@ extends CharacterBody2D
 # --- CONFIGURACIÓN ---
 @export var vidas: int = 3
 var es_invulnerable: bool = false
+
+@export_group("Iluminación")
+@export var rango_luz: float = 2.0 # Escala de la luz (1.0 = normal, 3.0 = grande)
+@export var energia_luz: float = 1.0 # Intensidad (0.5 = tenue, 1.0 = brillante)
+
 @export_group("Movimiento")
 @export var velocidad_caminar: float = 120.0
 @export var velocidad_correr: float = 250.0
@@ -15,6 +20,7 @@ var es_invulnerable: bool = false
 @onready var sprite_animado: AnimatedSprite2D = $AnimatedSprite2D
 @onready var area_interaccion: Area2D = $AreaInteraccion
 @onready var camara: Camera2D = $Camera2D
+@onready var luz: PointLight2D = $PointLight2D
 
 # --- ESTADO INTERNO ---
 var ultima_direccion: Vector2 = Vector2.DOWN
@@ -26,6 +32,9 @@ var esta_ralentizado: bool = false # ### NUEVO: Controla si camina lento por el 
 func _ready():
 	if camara:
 		camara.position_smoothing_enabled = usar_suavizado_camara
+	if luz:
+		luz.texture_scale = rango_luz
+		luz.energy = energia_luz
 
 func _process(delta):
 	# Efecto de temblor en cámara
@@ -39,7 +48,8 @@ func _process(delta):
 		if fuerza_temblor < 0.1:
 			fuerza_temblor = 0
 			camara.offset = Vector2.ZERO
-
+	if luz and randf() < 0.05: # 5% de probabilidad por frame
+		luz.energy = randf_range(energia_luz * 0.8, energia_luz * 1.2)
 func _physics_process(_delta):
 	# Limpieza de cámara en físicas (redundancia por seguridad)
 	if camara and camara.offset.length() > 0:

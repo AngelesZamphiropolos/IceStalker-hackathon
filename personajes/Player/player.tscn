@@ -485,11 +485,24 @@ size = Vector2(13.894737, 7.894735)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_arwrf"]
 size = Vector2(58.5, 60)
 
+[sub_resource type="Gradient" id="Gradient_e4ro6"]
+offsets = PackedFloat32Array(0, 0.5527426, 0.98734176)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 0.3137255, 0, 0, 0, 0.9764706)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_om3br"]
+gradient = SubResource("Gradient_e4ro6")
+width = 250
+height = 250
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
 [node name="Jugador" type="CharacterBody2D" unique_id=1757664187]
 z_index = 20
 y_sort_enabled = true
 scale = Vector2(0.57, 0.57)
 script = ExtResource("1_k53q1")
+vidas = 5
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1145634774]
 position = Vector2(0, -26.315788)
@@ -531,3 +544,10 @@ initial_velocity_max = 134.01
 angular_velocity_max = 1.5
 angle_max = 267.2
 color = Color(1, 0, 0.07450981, 1)
+
+[node name="PointLight2D" type="PointLight2D" parent="." unique_id=234513606]
+position = Vector2(0, -15.789474)
+scale = Vector2(1.6842105, 1.3894739)
+color = Color(1, 1, 1, 0.654902)
+shadow_enabled = true
+texture = SubResource("GradientTexture2D_om3br")
