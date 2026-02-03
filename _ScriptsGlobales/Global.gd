@@ -1,18 +1,27 @@
 extends Node
 
-# Aquí guardamos los nombres de lo que recoges. Ej: ["llave_roja", "engranaje"]
-var inventario: Array = []
+# --- INVENTARIO (Actualizado) ---
+var tiene_fusible_rojo: bool = false
+var tiene_fusible_azul: bool = false 
+var tiene_fusible_verde: bool = false
+var tiene_llave_puerta: bool = false
+var tiene_engranaje: bool = false
+var tiene_engranaje_2: bool = false 
 
-func agregar_item(nombre_item: String):
-	if not nombre_item in inventario:
-		inventario.append(nombre_item)
-		print("Has recogido: " + nombre_item)
+# --- ESTADO DE MISIONES ---
+var generador_reparado: bool = false
+var ascensor_reparado: bool = false
 
-func tiene_item(nombre_item: String) -> bool:
-	return nombre_item in inventario
+# --- COMUNICACIÓN ---
+signal minijuego_terminado(victoria: bool)
 
-func tiene_todos(lista_items: Array) -> bool:
-	for item in lista_items:
-		if not item in inventario:
-			return false 
-	return true
+# Función para reiniciar (Game Over)
+func reiniciar_todo():
+	tiene_fusible_rojo = false
+	tiene_fusible_azul = false 
+	tiene_fusible_verde = false
+	tiene_llave_puerta = false
+	tiene_engranaje = false
+	tiene_engranaje_2 = false
+	generador_reparado = false
+	ascensor_reparado = false

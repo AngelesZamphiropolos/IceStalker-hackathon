@@ -1,91 +1,87 @@
 extends Control
 
-# --- CONFIGURACIÓN ---
-@export var escena_meteorito: PackedScene # Arrastra Meteorito.tscn aquí en el editor
-@export var texturas_meteoritos: Array[Texture2D] # Arrastra tus 3 imagenes aquí
+# --- CONFIGURACIÓN DE RECURSOS ---
+@export_group("Configuración del Nivel")
+@export var escena_meteorito: PackedScene 
+@export var texturas_meteoritos: Array[Texture2D] 
 @export var velocidad_nave: float = 500.0
 
-# --- REFERENCIAS ---
+# --- REFERENCIAS INTERNAS ---
 @onready var nave = $Nave
 @onready var label_tiempo = $Label
 @onready var timer_juego = $TimerJuego
+# Cacheamos el tamaño de pantalla para no calcularlo en cada frame
 @onready var pantalla_ancho = get_viewport_rect().size.x
 
-# Estado
+# Estado del juego
 var juego_activo = true
 
 func _ready():
 	randomize()
-	# Nos aseguramos de pausar el juego principal al abrir esto
-	get_tree().paused = true 
+	# Pausamos el árbol principal para aislar el gameplay del minijuego
+	get_tree().paused = true
 	
-	# Conectamos timers por código o hazlo en el editor
+	# Conexión de señales de lógica
 	$TimerSpawn.timeout.connect(_spawner_meteoritos)
 	$TimerJuego.timeout.connect(_ganar_juego)
 
 func _process(delta):
+	# Guard clause: Si el juego terminó, cortamos el proceso
 	if not juego_activo: return
 	
-	# 1. Actualizar UI
+	# 1. Sincronización UI
 	label_tiempo.text = "TIEMPO: " + str(ceil(timer_juego.time_left))
 	
-	# 2. Movimiento de la Nave (Simple, sin físicas complejas)
+	# 2. Movimiento Horizontal (Input Axis devuelve -1, 0 o 1)
 	var input = Input.get_axis("mover_izquierda", "mover_derecha")
 	nave.position.x += input * velocidad_nave * delta
 	
-	# 3. Limites de pantalla (Clamp)
+	# 3. Clamping (Restricción de movimiento a los bordes de la pantalla)
 	nave.position.x = clamp(nave.position.x, 30, pantalla_ancho - 30)
 
 func _spawner_meteoritos():
 	if not juego_activo: return
 	
-	# Crear meteorito
 	var meteoro = escena_meteorito.instantiate()
 	
-	# Posición aleatoria arriba (fuera de pantalla)
+	# Spawn point: Aleatorio en X, y justo arriba de la pantalla visible en Y
 	var random_x = randf_range(20, pantalla_ancho - 20)
 	meteoro.position = Vector2(random_x, -50)
 	
-	# Textura aleatoria (si cargaste las 3 imagenes)
+	# Variación visual: Elegimos textura random si existen
 	if texturas_meteoritos.size() > 0:
 		meteoro.get_node("Sprite2D").texture = texturas_meteoritos.pick_random()
 	
-	# Añadir a la escena
 	add_child(meteoro)
 
-# --- SISTEMA ESTÁNDAR (ESTO USARÁS EN TODOS LOS MINIJUEGOS) ---
+# --- SISTEMA DE CONTROL DE ESTADO ---
 
 func perder_juego():
 	juego_activo = false
 	label_tiempo.text = "¡FALLASTE!"
 	$TimerSpawn.stop()
 	
-	# Esperar 1 segundo y cerrar
+	# Pequeño delay para feedback visual antes de cerrar
 	await get_tree().create_timer(1.0).timeout
-	cerrar_minijuego(false) # False = Perdió
+	cerrar_minijuego(false) 
 
 func _ganar_juego():
 	juego_activo = false
 	label_tiempo.text = "¡SOBREVIVISTE!"
 	$TimerSpawn.stop()
 	
-	# Borrar meteoritos restantes visualmente
+	# Limpieza visual: Eliminamos amenazas restantes
 	get_tree().call_group("Meteorito", "queue_free")
 	
 	await get_tree().create_timer(1.0).timeout
-	cerrar_minijuego(true) # True = Ganó
+	cerrar_minijuego(true) 
 
 func cerrar_minijuego(victoria: bool):
-	# 1. Avisar al Global
-	if victoria:
-		print("Minijuego Ganado")
-		# Global.minijuego_ganado.emit() <--- DESCOMENTAR CUANDO TENGAS EL GLOBAL
-	else:
-		print("Minijuego Perdido")
-		# Global.minijuego_perdido.emit() <--- DESCOMENTAR CUANDO TENGAS EL GLOBAL
+	# 1. Notificamos al sistema Global (para activar el generador si ganamos)
+	Global.minijuego_terminado.emit(victoria)
 	
-	# 2. Despausar el juego principal
+	# 2. Reanudamos el juego principal
 	get_tree().paused = false
 	
-	# 3. Autodestrucción
+	# 3. Limpieza de memoria
 	queue_free()

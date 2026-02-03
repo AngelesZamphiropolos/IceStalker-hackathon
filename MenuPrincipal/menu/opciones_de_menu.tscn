@@ -1,5 +1,0 @@
-[gd_scene format=3 uid="uid://c27y8lh7ud4o"]
-
-[node name="Opciones" type="Popup" unique_id=255553911]
-oversampling_override = 1.0
-visible = true

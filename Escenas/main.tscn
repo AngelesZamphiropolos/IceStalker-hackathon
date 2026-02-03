@@ -3,13 +3,84 @@
 [ext_resource type="PackedScene" uid="uid://cvin1m5f2i7we" path="res://Arte/mapa/tilemaps/mapa.tscn" id="1_0kh0y"]
 [ext_resource type="PackedScene" uid="uid://dkp7shm5rilws" path="res://personajes/Player/player.tscn" id="2_7xwpo"]
 [ext_resource type="PackedScene" uid="uid://c64aec30x4ui3" path="res://personajes/pengu/pengu0.tscn" id="3_2ia52"]
+[ext_resource type="PackedScene" uid="uid://cl2tsaghlcfrk" path="res://Escenas/ItemGenerico.tscn" id="4_7xwpo"]
+[ext_resource type="Texture2D" uid="uid://b25kpxrocy3w0" path="res://Escenas/herramientas/engranajes.png" id="5_2ia52"]
+[ext_resource type="Texture2D" uid="uid://cqjoin0o37isr" path="res://Escenas/herramientas/llave1.png" id="6_crgrh"]
+[ext_resource type="Texture2D" uid="uid://bbpdi3ad6ikx5" path="res://Escenas/herramientas/fusible_rojo.png" id="8_ktoa8"]
+[ext_resource type="Texture2D" uid="uid://b50k3gu37dx54" path="res://Escenas/herramientas/Mesa_cartas.png" id="10_l8mww"]
+[ext_resource type="PackedScene" uid="uid://4wxtnanuijrw" path="res://Escenas/InteractuableGenerico.tscn" id="11_b1m0k"]
+[ext_resource type="PackedScene" uid="uid://b67qy44xrjkk" path="res://minijuegos/cartas/scenes/MinijuegoCartas.tscn" id="12_i4rd6"]
+[ext_resource type="Texture2D" uid="uid://d363xfu38ig7u" path="res://Escenas/herramientas/TV_nave.png" id="13_7ndum"]
+[ext_resource type="Texture2D" uid="uid://bqoxjglpmdtct" path="res://Escenas/herramientas/Generador.png" id="13_nyv6x"]
+[ext_resource type="PackedScene" uid="uid://burqq2tdxm24x" path="res://minijuegos/nave/MinijuegoNave.tscn" id="14_c7rjx"]
+[ext_resource type="Texture2D" uid="uid://dyyq1m5hl7fnv" path="res://Escenas/herramientas/ascensor.png" id="14_i4rd6"]
+[ext_resource type="Texture2D" uid="uid://bltpayaeyi3hg" path="res://Escenas/herramientas/puerta1.png" id="15_7ndum"]
 
 [node name="main" type="Node2D" unique_id=1527127327]
 
 [node name="mapa" parent="." unique_id=86005495 instance=ExtResource("1_0kh0y")]
 
 [node name="Player" parent="." unique_id=1757664187 instance=ExtResource("2_7xwpo")]
-position = Vector2(644, 118)
+position = Vector2(455, 172)
 
 [node name="Pengu" parent="." unique_id=1275163384 instance=ExtResource("3_2ia52")]
 position = Vector2(537, 971)
+
+[node name="ItemGenerico" parent="." unique_id=1270146165 instance=ExtResource("4_7xwpo")]
+position = Vector2(211, 919)
+scale = Vector2(0.05, 0.05)
+tipo_de_item = 4
+textura_del_item = ExtResource("5_2ia52")
+
+[node name="ItemGenerico2" parent="." unique_id=2098059761 instance=ExtResource("4_7xwpo")]
+position = Vector2(82, 1063)
+scale = Vector2(0.035, 0.035)
+tipo_de_item = 3
+textura_del_item = ExtResource("6_crgrh")
+
+[node name="ItemGenerico4" parent="." unique_id=1759916949 instance=ExtResource("4_7xwpo")]
+position = Vector2(1084, 255)
+scale = Vector2(0.09, 0.09)
+textura_del_item = ExtResource("8_ktoa8")
+
+[node name="ItemGenerico6" parent="." unique_id=1464825355 instance=ExtResource("4_7xwpo")]
+position = Vector2(858, 113)
+scale = Vector2(0.05, 0.05)
+tipo_de_item = 4
+textura_del_item = ExtResource("5_2ia52")
+
+[node name="Interactuable" parent="." unique_id=1601080887 instance=ExtResource("11_b1m0k")]
+position = Vector2(314, 1187)
+tipo = 4
+textura_objeto = ExtResource("10_l8mww")
+escena_minijuego = ExtResource("12_i4rd6")
+
+[node name="Interactuable2" parent="." unique_id=464485883 instance=ExtResource("11_b1m0k")]
+position = Vector2(973, 310)
+tipo = 3
+textura_objeto = ExtResource("13_7ndum")
+escena_minijuego = ExtResource("14_c7rjx")
+
+[node name="Interactuable3" parent="." unique_id=211464187 instance=ExtResource("11_b1m0k")]
+position = Vector2(727, 85)
+scale = Vector2(0.5, 0.5)
+tipo = 1
+textura_objeto = ExtResource("13_nyv6x")
+
+[node name="Interactuable4" parent="." unique_id=522301095 instance=ExtResource("11_b1m0k")]
+position = Vector2(456, 148)
+tipo = 2
+textura_objeto = ExtResource("14_i4rd6")
+
+[node name="Interactuable5" parent="." unique_id=1280066471 instance=ExtResource("11_b1m0k")]
+position = Vector2(631, 148)
+tipo = 2
+textura_objeto = ExtResource("14_i4rd6")
+
+[node name="Interactuable6" parent="." unique_id=1374469694 instance=ExtResource("11_b1m0k")]
+position = Vector2(728, 290)
+textura_objeto = ExtResource("15_7ndum")
+
+[node name="Interactuable7" parent="." unique_id=520251266 instance=ExtResource("11_b1m0k")]
+position = Vector2(824, 290)
+textura_objeto = ExtResource("15_7ndum")
