@@ -1,0 +1,71 @@
+[gd_scene format=3 uid="uid://b67qy44xrjkk"]
+
+[ext_resource type="Script" uid="uid://c8x6vrer0f125" path="res://minijuegos/cartas/scripts/MinijuegoCartas.gd" id="1_580bs"]
+[ext_resource type="Texture2D" uid="uid://blw88bj0rgfyw" path="res://minijuegos/cartas/assets/frente_cartas/dorso.png" id="2_ee0mj"]
+[ext_resource type="Texture2D" uid="uid://dq5jl6vjddd7k" path="res://minijuegos/cartas/assets/frente_cartas/carta1.png" id="2_risy0"]
+[ext_resource type="Texture2D" uid="uid://bal352itwfdnb" path="res://minijuegos/cartas/assets/frente_cartas/carta2.png" id="3_ee0mj"]
+[ext_resource type="Texture2D" uid="uid://bgdxjy1d61sn2" path="res://minijuegos/cartas/assets/frente_cartas/carta3.png" id="4_adhpl"]
+[ext_resource type="Texture2D" uid="uid://bejsrldpyhuev" path="res://minijuegos/cartas/assets/frente_cartas/carta4.png" id="5_541uj"]
+[ext_resource type="Texture2D" uid="uid://bkqywqaihmidj" path="res://minijuegos/cartas/assets/frente_cartas/carta5.png" id="6_g5wyk"]
+[ext_resource type="Texture2D" uid="uid://c7e62soab48up" path="res://minijuegos/cartas/assets/frente_cartas/carta6.png" id="7_qmcsm"]
+[ext_resource type="Texture2D" uid="uid://dsd370saqtmrf" path="res://minijuegos/cartas/assets/fondo/penguin_caminando.jpeg" id="9_adhpl"]
+
+[node name="MinijuegoCartas" type="Control" unique_id=1281625439 node_paths=PackedStringArray("label_tiempo")]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_580bs")
+dorso_carta = ExtResource("2_ee0mj")
+imagenes_frente = Array[Texture2D]([ExtResource("2_risy0"), ExtResource("3_ee0mj"), ExtResource("4_adhpl"), ExtResource("5_541uj"), ExtResource("6_g5wyk"), ExtResource("7_qmcsm")])
+label_tiempo = NodePath("Label2")
+
+[node name="Fondo" type="TextureRect" parent="." unique_id=2106578614]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("9_adhpl")
+expand_mode = 1
+
+[node name="Label" type="Label" parent="." unique_id=596163619]
+layout_mode = 0
+offset_left = 21.0
+offset_top = 12.0
+offset_right = 203.0
+offset_bottom = 35.0
+text = "ENCUENTRA LOS PARES"
+
+[node name="Label2" type="Label" parent="." unique_id=593441875]
+layout_mode = 0
+offset_left = 241.0
+offset_top = 14.0
+offset_right = 304.0
+offset_bottom = 37.0
+text = "Tiempo:"
+
+[node name="GridContainer" type="GridContainer" parent="." unique_id=714552193]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 4
+
+[node name="Timer" type="Timer" parent="." unique_id=2009272029]
+wait_time = 35.0
+autostart = true
