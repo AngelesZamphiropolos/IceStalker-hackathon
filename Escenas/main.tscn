@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://b1ur4j8xi2i28"]
+
+[ext_resource type="PackedScene" uid="uid://cvin1m5f2i7we" path="res://Arte/mapa/tilemaps/mapa.tscn" id="1_0kh0y"]
+[ext_resource type="PackedScene" uid="uid://dkp7shm5rilws" path="res://personajes/Player/player.tscn" id="2_7xwpo"]
+[ext_resource type="PackedScene" uid="uid://c64aec30x4ui3" path="res://personajes/pengu/pengu0.tscn" id="3_2ia52"]
+
+[node name="main" type="Node2D" unique_id=1527127327]
+
+[node name="mapa" parent="." unique_id=86005495 instance=ExtResource("1_0kh0y")]
+
+[node name="Player" parent="." unique_id=1757664187 instance=ExtResource("2_7xwpo")]
+position = Vector2(644, 118)
+
+[node name="Pengu" parent="." unique_id=1275163384 instance=ExtResource("3_2ia52")]
+position = Vector2(537, 971)

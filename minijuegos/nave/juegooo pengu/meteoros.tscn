@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://c6sv5kn0mf3nb"]
+
+[ext_resource type="Texture2D" uid="uid://dr1yf4mjfyosu" path="res://juegos de meteoritos/meteoritop..png" id="1_6dg1p"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_6dg1p"]
+radius = 115.00435
+
+[node name="meteoros" type="Area2D" unique_id=26305565]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1760841130]
+texture = ExtResource("1_6dg1p")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=504536386]
+position = Vector2(-3, 1)
+shape = SubResource("CircleShape2D_6dg1p")
