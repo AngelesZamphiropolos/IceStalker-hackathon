@@ -135,13 +135,22 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_b3k8w"]
-size = Vector2(271, 230.5)
+size = Vector2(179, 94)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_ka03h"]
-size = Vector2(523, 487)
+[sub_resource type="CircleShape2D" id="CircleShape2D_ka03h"]
+radius = 3253.3228
+
+[sub_resource type="Gradient" id="Gradient_ka03h"]
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_b3k8w"]
+gradient = SubResource("Gradient_ka03h")
+fill = 1
+fill_from = Vector2(0, 0.9184028)
 
 [node name="Pengu" type="CharacterBody2D" unique_id=1275163384]
+scale = Vector2(0.08, 0.08)
 script = ExtResource("1_vlyhv")
+metadata/_edit_group_ = true
 
 [node name="RayCast2D" type="RayCast2D" parent="." unique_id=420111022]
 
@@ -152,13 +161,24 @@ animation = &"derecha_izquierda"
 frame_progress = 0.727846
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1598862330]
-position = Vector2(3, 105.25)
+position = Vector2(51, 223)
 shape = SubResource("RectangleShape2D_b3k8w")
-
-[node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=865100829]
 
 [node name="DetectionArea" type="Area2D" parent="." unique_id=1616118278]
 
-[node name="CollisionShape2D2" type="CollisionShape2D" parent="." unique_id=244475069]
-position = Vector2(53, -5)
-shape = SubResource("RectangleShape2D_ka03h")
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="DetectionArea" unique_id=244475069]
+position = Vector2(100, -192)
+shape = SubResource("CircleShape2D_ka03h")
+
+[node name="Timer" type="Timer" parent="." unique_id=1733392276]
+wait_time = 4.0
+autostart = true
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=865100829]
+avoidance_enabled = true
+radius = 25.0
+
+[node name="PointLight2D" type="PointLight2D" parent="." unique_id=734356169]
+position = Vector2(52, 44)
+scale = Vector2(58.773438, 49.6875)
+texture = SubResource("GradientTexture2D_b3k8w")
