@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://c3rameinr8ctv"]
+
+[ext_resource type="PackedScene" uid="uid://c64aec30x4ui3" path="res://Escenas/personajes/pengu/pengu0.tscn" id="1_y1b8n"]
+
+[node name="MundoPrueba" type="Node2D" unique_id=2012322921]
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=1986225279]
+
+[node name="Pengu" parent="." unique_id=1275163384 instance=ExtResource("1_y1b8n")]
+position = Vector2(0, -2)
+scale = Vector2(0.07, 0.07)
+
+[node name="Camera2D" type="Camera2D" parent="Pengu" unique_id=1504932646]
+position = Vector2(42.857143, 42.857143)
