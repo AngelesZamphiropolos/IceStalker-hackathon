@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://digp0k6sp6l28"]
+
+[ext_resource type="Script" uid="uid://biqtbbjrticgj" path="res://minijuegos/nave/Meteorito.gd" id="1_7xrqs"]
+[ext_resource type="Texture2D" uid="uid://c7vwosr24kl4" path="res://minijuegos/nave/assets/meteoritoG.png" id="2_0udvf"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_yllrg"]
+radius = 17.06
+
+[node name="Meteorito" type="Area2D" unique_id=805469803 groups=["Meteorito"]]
+script = ExtResource("1_7xrqs")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1067705908]
+position = Vector2(-1.1920929e-07, -9.536743e-07)
+scale = Vector2(0.09032709, 0.12091506)
+texture = ExtResource("2_0udvf")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=796367863]
+shape = SubResource("CircleShape2D_yllrg")
+
+[node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="CollisionShape2D" unique_id=1503353046]

@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://b18tbye5ktae8"]
+
+[ext_resource type="Script" uid="uid://b45qdflit8yep" path="res://Escenas/Scripts/Puerta.gd" id="1_cydqo"]
+
+[node name="Puerta" type="StaticBody2D" unique_id=2146417847]
+script = ExtResource("1_cydqo")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1167601063]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=251186353]

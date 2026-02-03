@@ -1,0 +1,75 @@
+[gd_scene format=3 uid="uid://burqq2tdxm24x"]
+
+[ext_resource type="Script" uid="uid://b7jff5b26obuh" path="res://minijuegos/nave/MinijuegoNave.gd" id="1_mq66d"]
+[ext_resource type="PackedScene" uid="uid://digp0k6sp6l28" path="res://minijuegos/nave/Meteorito.tscn" id="2_ub7b7"]
+[ext_resource type="Texture2D" uid="uid://c7vwosr24kl4" path="res://minijuegos/nave/assets/meteoritoG.png" id="3_3dxo2"]
+[ext_resource type="Texture2D" uid="uid://bxigaijetkf5o" path="res://minijuegos/nave/assets/meteoritoM..png" id="4_t4im7"]
+[ext_resource type="Texture2D" uid="uid://bp11kctpp1a3p" path="res://minijuegos/nave/assets/meteoritop..png" id="5_ko3h1"]
+[ext_resource type="Texture2D" uid="uid://dxi3fdhlb4ejd" path="res://minijuegos/nave/assets/NAVE.png" id="6_3dxo2"]
+
+[sub_resource type="Gradient" id="Gradient_3dxo2"]
+offsets = PackedFloat32Array(0, 0.4806867, 1)
+colors = PackedColorArray(0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_t4im7"]
+size = Vector2(22, 15)
+
+[node name="MinijuegoNave" type="Control" unique_id=194403797]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_mq66d")
+escena_meteorito = ExtResource("2_ub7b7")
+texturas_meteoritos = Array[Texture2D]([ExtResource("3_3dxo2"), ExtResource("4_t4im7"), ExtResource("5_ko3h1")])
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=922271597]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="Estrellas" type="CPUParticles2D" parent="ColorRect" unique_id=677236109]
+position = Vector2(320, 0)
+amount = 300
+lifetime = 3.0999999999999996
+preprocess = 5.0
+emission_shape = 3
+emission_rect_extents = Vector2(320, -180)
+direction = Vector2(0, 1)
+spread = 0.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 100.0
+initial_velocity_max = 200.0
+scale_amount_min = 0.5
+scale_amount_max = 1.5
+color_ramp = SubResource("Gradient_3dxo2")
+
+[node name="Label" type="Label" parent="." unique_id=307262489]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="Nave" type="Area2D" parent="." unique_id=470445841 groups=["NavePlayer"]]
+position = Vector2(320, 264)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Nave" unique_id=1785891363]
+shape = SubResource("RectangleShape2D_t4im7")
+
+[node name="Sprite2D" type="Sprite2D" parent="Nave" unique_id=1667819518]
+scale = Vector2(0.065, 0.065)
+texture = ExtResource("6_3dxo2")
+
+[node name="TimerSpawn" type="Timer" parent="." unique_id=581104749]
+wait_time = 0.15
+autostart = true
+
+[node name="TimerJuego" type="Timer" parent="." unique_id=148946188]
+wait_time = 15.0
+autostart = true
