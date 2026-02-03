@@ -497,6 +497,10 @@ fill = 1
 fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(1, 0.5)
 
+[sub_resource type="LabelSettings" id="LabelSettings_e4ro6"]
+font_size = 8
+font_color = Color(0.043137256, 0, 0.3254902, 1)
+
 [node name="Jugador" type="CharacterBody2D" unique_id=1757664187]
 z_index = 20
 y_sort_enabled = true
@@ -551,3 +555,13 @@ scale = Vector2(1.6842105, 1.3894739)
 color = Color(1, 1, 1, 0.654902)
 shadow_enabled = true
 texture = SubResource("GradientTexture2D_om3br")
+
+[node name="LabelPensamiento" type="Label" parent="." unique_id=565420614]
+visible = false
+offset_left = -221.05264
+offset_top = -84.210526
+offset_right = 219.94736
+offset_bottom = -61.210526
+label_settings = SubResource("LabelSettings_e4ro6")
+horizontal_alignment = 1
+vertical_alignment = 2

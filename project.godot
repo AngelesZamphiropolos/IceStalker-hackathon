@@ -18,6 +18,10 @@ config/name="IceStalker"
 run/main_scene="uid://b1ur4j8xi2i28"
 config/features=PackedStringArray("4.6", "Forward Plus")
 
+[autoload]
+
+Global="*uid://bbu1iidvg6snb"
+
 [display]
 
 window/size/viewport_width=640
