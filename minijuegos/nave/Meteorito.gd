@@ -4,7 +4,6 @@ var velocidad = 400.0
 var radio_choque = 15.0 
 
 func _ready():
-	# Aseguramos que se mueva aunque el juego esté pausado
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
 func _process(delta):

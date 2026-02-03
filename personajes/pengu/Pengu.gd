@@ -30,7 +30,7 @@ func _ready():
 	# Validación de seguridad para evitar crashes
 	if not nav_agent or not detection_area or not hitbox_ataque:
 		printerr("[ERROR] Faltan nodos esenciales en el Pingüino.")
-		set_physics_process(false) # Desactivar si falta algo vital
+		set_physics_process(false) 
 		return
 	
 	# Configuración de navegación
@@ -56,7 +56,7 @@ func _physics_process(delta):
 				procesar_ambiente_terror() # Temblor
 				chequear_ataque()
 			else:
-				# Si el objetivo desaparece (ej. muere o cambia escena), volver a patrullar
+				# Si el objetivo desaparece, volver a patrullar
 				cambiar_estado(Estado.PATRULLAR)
 
 		Estado.HUIR:
@@ -94,7 +94,7 @@ func chequear_ataque():
 	var cuerpos = hitbox_ataque.get_overlapping_bodies()
 	
 	for cuerpo in cuerpos:
-		# FIX: Ignorarse a sí mismo para no procesar colisión propia
+		# FIX: para que el pendejo no se detecte solo
 		if cuerpo == self: 
 			continue
 			

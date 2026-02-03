@@ -10,7 +10,7 @@ extends Control
 @onready var nave = $Nave
 @onready var label_tiempo = $Label
 @onready var timer_juego = $TimerJuego
-# Cacheamos el tamaño de pantalla para no calcularlo en cada frame
+# Cacheamos el tamaño de pantalla 
 @onready var pantalla_ancho = get_viewport_rect().size.x
 
 # Estado del juego
@@ -18,7 +18,7 @@ var juego_activo = true
 
 func _ready():
 	randomize()
-	# Pausamos el árbol principal para aislar el gameplay del minijuego
+	# Pausamos el árbol principal para centrar en el gameplay del minijuego
 	get_tree().paused = true
 	
 	# Conexión de señales de lógica
@@ -32,11 +32,11 @@ func _process(delta):
 	# 1. Sincronización UI
 	label_tiempo.text = "TIEMPO: " + str(ceil(timer_juego.time_left))
 	
-	# 2. Movimiento Horizontal (Input Axis devuelve -1, 0 o 1)
+	# 2. Movimiento Horizontal 
 	var input = Input.get_axis("mover_izquierda", "mover_derecha")
 	nave.position.x += input * velocidad_nave * delta
 	
-	# 3. Clamping (Restricción de movimiento a los bordes de la pantalla)
+	# 3. Restricción de movimiento a los bordes de la pantalla
 	nave.position.x = clamp(nave.position.x, 30, pantalla_ancho - 30)
 
 func _spawner_meteoritos():

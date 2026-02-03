@@ -17,31 +17,29 @@ enum TipoObjeto {
 @export_group("Para Minijuegos")
 @export var escena_minijuego: PackedScene
 
-# Referencia al icono (el signo de exclamación)
+# Referencias internas
 @onready var icono_alerta = $IconoAlerta
-
 var minijuego_abierto = false
-
-# Capa temporal para el minijuego
 var capa_temporal: CanvasLayer = null
+
+# VARIABLE NUEVA: Guardamos quién está jugando para hablarle cuando gane
+var jugador_actual = null 
 
 func _ready():
 	if textura_objeto != null:
 		$Sprite2D.texture = textura_objeto
 	
-	# CONECTAR SEÑALES AUTOMÁTICAMENTE
-	# Detectamos cuando el jugador entra o sale de esta zona
+	# Conexión de señales de proximidad
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 
 # --- SISTEMA DE ALERTA VISUAL ---
 
 func _on_body_entered(body):
-	# Si lo que entra es el Personaje (asegúrate que tu personaje se llame así o sea CharacterBody2D)
 	if body is CharacterBody2D: 
 		icono_alerta.visible = true
 		
-		# Animación extra: Un pequeño rebote (Tween)
+		# Animación de rebote suave para llamar la atención
 		var tween = create_tween()
 		tween.tween_property(icono_alerta, "position:y", -60, 0.2).set_trans(Tween.TRANS_SINE)
 		tween.tween_property(icono_alerta, "position:y", -50, 0.2).set_trans(Tween.TRANS_SINE)
@@ -53,7 +51,6 @@ func _on_body_exited(body):
 # --- INTERACCIÓN PRINCIPAL ---
 
 func interactuar(jugador):
-	
 	match tipo:
 		TipoObjeto.PUERTA_COMUN:
 			accion_puerta(jugador)
@@ -81,11 +78,9 @@ func accion_generador(jugador):
 		return
 
 	if Global.tiene_fusible_rojo and Global.tiene_fusible_azul and Global.tiene_fusible_verde:
-		jugador.mostrar_pensamiento("¡Perfecto! Arrancando sistemas...")
+		jugador.mostrar_pensamiento("La energía solo alcanza para el ascensor, no puedo encender las luces.")
 		Global.generador_reparado = true
-		modulate = Color(1.5, 0.0, 0.0, 0.8)
 	else:
-		# Feedback detallado
 		var faltantes = ""
 		if not Global.tiene_fusible_rojo: faltantes += "Rojo "
 		if not Global.tiene_fusible_azul: faltantes += "Azul "
@@ -100,17 +95,21 @@ func accion_ascensor(jugador):
 	else:
 		jugador.mostrar_pensamiento("No tiene energía. Debo arreglar el generador.")
 
-# --- SISTEMA DE MINIJUEGOS (UI FLOTANTE) ---
+# --- SISTEMA DE MINIJUEGOS ---
 
 func abrir_minijuego(jugador):
+	# Validaciones iniciales: zi ya tenemos el premio, solo damos feedback y salimos
 	if tipo == TipoObjeto.TV_NAVES and Global.tiene_fusible_azul:
-		jugador.mostrar_pensamiento("La tv me solto un fusible azul")
+		jugador.mostrar_pensamiento("La TV ya me soltó un fusible azul.")
 		return
 	if tipo == TipoObjeto.MESA_CARTAS and Global.tiene_fusible_verde:
-		jugador.mostrar_pensamiento("Cayo un fusible verde de las mesa.")
+		jugador.mostrar_pensamiento("Ya encontré el fusible verde en la mesa.")
 		return
 
 	if minijuego_abierto or escena_minijuego == null: return
+
+	# GUARDAMOS LA REFERENCIA DEL JUGADOR
+	jugador_actual = jugador 
 
 	print("Iniciando minijuego...")
 	var juego = escena_minijuego.instantiate()
@@ -118,7 +117,6 @@ func abrir_minijuego(jugador):
 	if not Global.minijuego_terminado.is_connected(_al_terminar_minijuego):
 		Global.minijuego_terminado.connect(_al_terminar_minijuego)
 	
-	# Usamos CanvasLayer para que el juego flote sobre la cámara
 	capa_temporal = CanvasLayer.new()
 	capa_temporal.layer = 100
 	capa_temporal.add_child(juego)
@@ -137,14 +135,25 @@ func _al_terminar_minijuego(victoria: bool):
 	
 	if victoria:
 		entregar_recompensa()
+	else:
+		# Feedback opcional al perder
+		if jugador_actual:
+			jugador_actual.mostrar_pensamiento("Maldición, casi lo tenía...")
 
 func entregar_recompensa():
+	#la variable 'jugador_actual' para mostrar el pensamiento
 	match tipo:
 		TipoObjeto.TV_NAVES:
 			if not Global.tiene_fusible_azul:
 				Global.tiene_fusible_azul = true
-				print("¡GANASTE EL FUSIBLE AZUL!")
+				if jugador_actual:
+					jugador_actual.mostrar_pensamiento("¡Bien! Cayó un fusible AZUL de la TV.")
+					
 		TipoObjeto.MESA_CARTAS:
 			if not Global.tiene_fusible_verde:
 				Global.tiene_fusible_verde = true
-				print("¡GANASTE EL FUSIBLE VERDE!")
+				if jugador_actual:
+					jugador_actual.mostrar_pensamiento("¡Genial! Encontré un fusible VERDE en la mesa.")
+	
+	# Limpieza de referencia por seguridad
+	#jugador_actual = null (no note ningun cambio de usar este o nel)
