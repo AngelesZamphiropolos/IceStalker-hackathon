@@ -1,6 +1,7 @@
 extends CharacterBody2D
 
-# --- CONFIGURACIÓN ---
+# --- configuración ---
+# variables expuestas para ajustar en el editor
 @export var vidas: int = 3
 var es_invulnerable: bool = false
 
@@ -19,23 +20,23 @@ var es_invulnerable: bool = false
 @export var tasa_recarga: float = 15.0 
 
 @export_group("Audio FX")
-@export var sfx_pasos: Array[AudioStream] # Arrastra varios sonidos de pasos aquí para variedad
-@export var sfx_dano: AudioStream     
-@export var frames_pasos: Array[int] = [2, 3] # ¿En qué frames el pie toca el suelo? 
+@export var sfx_pasos: Array[AudioStream] # lista de sonidos para pasos aleatorios
+@export var sfx_dano: AudioStream      
+@export var frames_pasos: Array[int] = [2, 3] # frames de animación donde suena el paso
 
 @export_group("Opciones")
 @export var usar_suavizado_camara: bool = true
 
-# --- REFERENCIAS ---
+# --- referencias ---
+# obtención de nodos hijos al iniciar
 @onready var sprite_animado: AnimatedSprite2D = $AnimatedSprite2D
 @onready var area_interaccion: Area2D = $AreaInteraccion
 @onready var camara: Camera2D = $Camera2D
 @onready var luz: PointLight2D = $PointLight2D
 @onready var label_pensamiento = $LabelPensamiento
-# Referencia nueva al reproductor de audio
 @onready var audio_player: AudioStreamPlayer = $AudioPlayer 
 
-# --- ESTADO INTERNO ---
+# --- estado interno ---
 var ultima_direccion: Vector2 = Vector2.DOWN
 var esta_sentado: bool = false
 var input_bloqueado: bool = false
@@ -47,26 +48,29 @@ var estamina_actual: float = 0.0
 var esta_agotado: bool = false 
 
 func _ready():
+	# inicialización de estamina
 	estamina_actual = max_estamina
 	
+	# configuración inicial de cámara y luz si existen
 	if camara:
 		camara.position_smoothing_enabled = usar_suavizado_camara
 	if luz:
 		luz.texture_scale = rango_luz
 		luz.energy = energia_luz
 	
+	# conexión de señal para sincronizar pasos
 	sprite_animado.frame_changed.connect(_on_frame_changed)
 	
-	# --- NUEVO: INTRODUCCIÓN NARRATIVA ---
-	# 1. Bloqueamos al personaje para que sea una "cinemática"
+	# --- introducción narrativa ---
+	# bloquea input para secuencia inicial
 	input_bloqueado = true 
 	
-	# 2. Esperamos un segundo para que el jugador se ubique
+	# espera inicial
 	await get_tree().create_timer(1.0).timeout
 	
-	# 3. Secuencia de pensamientos (La historia)
+	# secuencia de textos con esperas
 	mostrar_pensamiento("Ugh... mi cabeza... \n ¿Qué hora es?")
-	await get_tree().create_timer(4.0).timeout # Esperamos a que termine de leer
+	await get_tree().create_timer(4.0).timeout 
 	
 	mostrar_pensamiento("Me quedé dormido estudiando \npara el final... ¡Maldición!")
 	await get_tree().create_timer(4.0).timeout
@@ -77,16 +81,16 @@ func _ready():
 	mostrar_pensamiento("Tengo que bajar por el ascensor. \nEspero que aún haya energía.")
 	await get_tree().create_timer(4.0).timeout
 	
-	# 4. ¡A JUGAR! Liberamos al personaje
+	# libera input para comenzar juego
 	input_bloqueado = false
 
 func _process(delta):
+	# control de menú de pausa o salida
 	if Input.is_action_just_pressed("ui_cancel") or Input.is_key_pressed(KEY_ESCAPE):
-		# 1. Importante: Liberar el mouse por si estaba atrapado
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-		
-		# 2. Volver al menú (Asegúrate que la ruta sea la correcta)
 		get_tree().change_scene_to_file("res://MenuPrincipal/escenas/menu.tscn")
+	
+	# lógica de temblor de cámara (screen shake)
 	if camara and fuerza_temblor > 0:
 		camara.offset = Vector2(
 			randf_range(-fuerza_temblor, fuerza_temblor),
@@ -97,36 +101,44 @@ func _process(delta):
 			fuerza_temblor = 0
 			camara.offset = Vector2.ZERO
 			
+	# efecto de parpadeo de luz
 	if luz and randf() < 0.05: 
 		luz.energy = randf_range(energia_luz * 0.8, energia_luz * 1.2)
 
 func _physics_process(delta):
+	# interpolación de posición de cámara
 	if camara and camara.offset.length() > 0:
 		camara.offset = lerp(camara.offset, Vector2.ZERO, 0.1)
 
+	# actualización de recursos
 	gestionar_estamina(delta)
 
+	# verificación de estado sentado
 	if esta_sentado:
 		chequear_levantarse()
 		return
 	
+	# verificación de bloqueo de input
 	if input_bloqueado:
 		return
 
+	# flujo principal de movimiento y acción
 	var direccion = obtener_input()
 	aplicar_movimiento(direccion) 
 	actualizar_animacion(direccion)
 	manejar_acciones()
 
-# --- LÓGICA DE MOVIMIENTO ---
+# --- lógica de movimiento ---
 
 func obtener_input() -> Vector2:
+	# obtiene vector normalizado de inputs
 	return Input.get_vector("mover_izquierda", "mover_derecha", "mover_arriba", "mover_abajo")
 
 func aplicar_movimiento(dir: Vector2):
 	var velocidad_objetivo = velocidad_caminar
 	var esta_intentando_correr = Input.is_action_pressed("correr")
 	
+	# determina velocidad según estado
 	if esta_ralentizado:
 		velocidad_objetivo = velocidad_herido 
 	elif esta_intentando_correr:
@@ -135,18 +147,21 @@ func aplicar_movimiento(dir: Vector2):
 		else:
 			velocidad_objetivo = velocidad_caminar
 
+	# aplica velocidad y dirección
 	if dir != Vector2.ZERO:
 		velocity = dir * velocidad_objetivo
 		ultima_direccion = dir
 	else:
 		velocity = Vector2.ZERO
 
+	# mueve el cuerpo respetando colisiones
 	move_and_slide()
 
 func gestionar_estamina(delta):
 	var moviendose = velocity.length() > velocidad_caminar + 10 
 	var gastando = moviendose and not esta_agotado and Input.is_action_pressed("correr")
 	
+	# lógica de drenaje
 	if gastando:
 		estamina_actual -= tasa_drenaje * delta
 		if estamina_actual <= 0:
@@ -155,6 +170,7 @@ func gestionar_estamina(delta):
 			mostrar_pensamiento("¡Me asfixio... necesito aire!")
 			sprite_animado.modulate = Color(0.7, 0.7, 1.0) 
 	else:
+		# lógica de regeneración
 		var multiplicador = 1.0
 		if esta_sentado:
 			multiplicador = 2.0 
@@ -164,6 +180,7 @@ func gestionar_estamina(delta):
 		if estamina_actual > max_estamina:
 			estamina_actual = max_estamina
 		
+		# recuperación del estado agotado
 		if esta_agotado:
 			var umbral_recuperacion = max_estamina * 0.40
 			if estamina_actual >= umbral_recuperacion:
@@ -171,44 +188,41 @@ func gestionar_estamina(delta):
 				mostrar_pensamiento("Ya recuperé el aliento.")
 				sprite_animado.modulate = Color.WHITE 
 
-# --- LÓGICA VISUAL Y AUDIO DE PASOS ---
+# --- lógica visual y audio de pasos ---
 
 func actualizar_animacion(dir: Vector2):
 	var accion = _determinar_accion()
 	var sufijo = _determinar_direccion_y_flip(dir)
 	var nombre_final = accion + sufijo
 	
+	# cambia animación solo si es distinta a la actual
 	if sprite_animado.animation != nombre_final:
 		sprite_animado.play(nombre_final)
 
-# ESTA FUNCIÓN SE EJECUTA CADA VEZ QUE CAMBIA UN FRAME DE ANIMACIÓN
+# se ejecuta por señal frame_changed
 func _on_frame_changed():
-	# Si no se mueve o está sentado, no sonar
 	if velocity.length() == 0 or esta_sentado: return
 	
-	# Verificar si la animación actual es de movimiento
 	var anim = sprite_animado.animation
 	if "walk" in anim or "run" in anim:
-		# Verificar si el frame actual es uno donde el pie toca el suelo
+		# reproduce sonido si el frame coincide con la lista configurada
 		if sprite_animado.frame in frames_pasos:
 			_reproducir_sonido_paso()
 
 func _reproducir_sonido_paso():
 	if sfx_pasos.is_empty(): return
-	# 1. Variación para que no suene robótico
+	# selecciona sonido aleatorio
 	audio_player.stream = sfx_pasos.pick_random()
 	
-	# 2. Lógica de CORRER vs CAMINAR
 	var esta_corriendo = velocity.length() > velocidad_caminar + 10
 	
+	# ajusta pitch y volumen según velocidad
 	if esta_corriendo:
-		# Si corre: Sube el volumen y el PITCH (lo hace sonar más rápido y agudo)
-		audio_player.volume_db = -2 # Un poco más fuerte
-		audio_player.pitch_scale = randf_range(1.1, 1.3) # 1.3 es 30% más rápido
+		audio_player.volume_db = -2 
+		audio_player.pitch_scale = randf_range(1.1, 1.3) 
 	else:
-		# Si camina: Normal
-		audio_player.volume_db = -8 # Un poco más suave
-		audio_player.pitch_scale = randf_range(0.9, 1.05) # Variación natural
+		audio_player.volume_db = -8 
+		audio_player.pitch_scale = randf_range(0.9, 1.05) 
 	
 	audio_player.play()
 
@@ -228,38 +242,38 @@ func _determinar_direccion_y_flip(dir: Vector2) -> String:
 	sprite_animado.flip_h = (referencia.x < 0)
 	return ""
 
-# --- SISTEMA DE INTERACCIÓN ---
+# --- sistema de interacción ---
 
 func mostrar_pensamiento(texto: String):
-	# 1. Limpieza de animación anterior
+	# limpia tween anterior si existe
 	if tween_pensamiento and tween_pensamiento.is_valid():
 		tween_pensamiento.kill()
 	
-	# 2. Configuración Inicial
+	# configuración inicial del label
 	label_pensamiento.text = texto
 	label_pensamiento.visible = true
 	label_pensamiento.modulate.a = 1.0
 	label_pensamiento.visible_ratio = 0.0
 	
-	# 3. Creación de la Secuencia
+	# creación de secuencia de animación
 	tween_pensamiento = create_tween()
 	
-	# A) Efecto de escritura (0.7 segundos)
+	# efecto de escritura
 	tween_pensamiento.tween_property(label_pensamiento, "visible_ratio", 1.0, 0.7)
 	
-	# B) Esperar para leer (Tiempo calculado)
+	# espera de lectura calculada
 	var tiempo_lectura = 1.5 + (texto.length() * 0.1)
 	tween_pensamiento.tween_interval(tiempo_lectura)
 	
-	# C) Desvanecer suavemente (1.0 segundo)
+	# desvanecimiento (fade out)
 	tween_pensamiento.tween_property(label_pensamiento, "modulate:a", 0.0, 1.0)
 	
-	# D) Apagar al final
-	# Al ser secuencial, esto ahora espera 100% seguro a que termine el desvanecimiento
+	# ocultar label al finalizar
 	tween_pensamiento.tween_callback(func(): label_pensamiento.visible = false)
 	
 
 func manejar_acciones():
+	# detección de inputs de acción
 	if Input.is_action_just_pressed("interactuar"):
 		_buscar_interaccion()
 	
@@ -267,19 +281,21 @@ func manejar_acciones():
 		_entrar_estado_sentado()
 
 func _buscar_interaccion():
+	# busca áreas interactivas cercanas
 	var areas = area_interaccion.get_overlapping_areas()
 	for area in areas:
 		if area.has_method("interactuar"):
 			area.interactuar(self) 
 			return
 	
+	# busca cuerpos interactivos cercanos
 	var cuerpos = area_interaccion.get_overlapping_bodies()
 	for cuerpo in cuerpos:
 		if cuerpo.has_method("interactuar"):
 			cuerpo.interactuar(self) 
 			return
 
-# --- ESTADOS ESPECIALES ---
+# --- estados especiales ---
 
 func _entrar_estado_sentado():
 	esta_sentado = true
@@ -287,42 +303,46 @@ func _entrar_estado_sentado():
 	sprite_animado.play("sit")
 
 func chequear_levantarse():
+	# rompe estado sentado si hay input de movimiento
 	if obtener_input() != Vector2.ZERO:
 		esta_sentado = false
 
-# --- SISTEMA DE DAÑO ---
+# --- sistema de daño ---
 
 func recibir_dano():
 	if es_invulnerable: return
 	
 	vidas -= 1
 	
-	# --- AUDIO DE DAÑO ---
+	# reproducción de audio de daño
 	if sfx_dano:
 		audio_player.stream = sfx_dano
-		audio_player.pitch_scale = 1.0 # Reseteamos pitch a normal para el grito
+		audio_player.pitch_scale = 1.0 
 		audio_player.volume_db = 0
 		audio_player.play()
-	# ---------------------
 	
 	var frases_dolor = ["¡Ay!", "¡Maldición!", "¡Eso duele!", "¡Ahg!"]
 	mostrar_pensamiento(frases_dolor.pick_random()) 
 
+	# verificación de muerte
 	if vidas <= 0:
 		game_over()
 		return
 
+	# feedback visual (parpadeo rojo)
 	sprite_animado.modulate = Color(1, 0, 0)
 	var tween = create_tween()
 	tween.tween_property(sprite_animado, "modulate", Color.WHITE, 0.5)
 	
 	aplicar_ralentizacion()
 
+	# periodo de invulnerabilidad
 	es_invulnerable = true
 	await get_tree().create_timer(1.5).timeout
 	es_invulnerable = false
 
 func aplicar_ralentizacion():
+	# penalización temporal de velocidad
 	esta_ralentizado = true
 	await get_tree().create_timer(0.5).timeout
 	esta_ralentizado = false
@@ -338,6 +358,7 @@ func game_over():
 	
 	await get_tree().create_timer(2.0).timeout
 	
+	# reinicio de variables globales y cambio de escena
 	if Global.has_method("reiniciar_todo"):
 		Global.reiniciar_todo()
 	
