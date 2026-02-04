@@ -10,6 +10,10 @@ enum TipoObjeto {
 }
 
 # --- CONFIGURACIÓN ---
+@export_group("Sonidos")
+@export var sfx_interaccion: AudioStream
+@export var sfx_generador_arreglado: AudioStream 
+
 @export_group("Configuración Principal")
 @export var tipo: TipoObjeto = TipoObjeto.PUERTA_COMUN
 @export var textura_objeto: Texture2D
@@ -19,17 +23,17 @@ enum TipoObjeto {
 
 # Referencias internas
 @onready var icono_alerta = $IconoAlerta
+@onready var audio_interact = $AudioInteract
 var minijuego_abierto = false
 var capa_temporal: CanvasLayer = null
 
-# VARIABLE NUEVA: Guardamos quién está jugando para hablarle cuando gane
+# Variable del jugador
 var jugador_actual = null 
 
 func _ready():
 	if textura_objeto != null:
 		$Sprite2D.texture = textura_objeto
 	
-	# Conexión de señales de proximidad
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 
@@ -38,8 +42,6 @@ func _ready():
 func _on_body_entered(body):
 	if body is CharacterBody2D: 
 		icono_alerta.visible = true
-		
-		# Animación de rebote suave para llamar la atención
 		var tween = create_tween()
 		tween.tween_property(icono_alerta, "position:y", -60, 0.2).set_trans(Tween.TRANS_SINE)
 		tween.tween_property(icono_alerta, "position:y", -50, 0.2).set_trans(Tween.TRANS_SINE)
@@ -51,6 +53,11 @@ func _on_body_exited(body):
 # --- INTERACCIÓN PRINCIPAL ---
 
 func interactuar(jugador):
+	# Reproducimos el sonido "click" genérico primero
+	if sfx_interaccion:
+		audio_interact.stream = sfx_interaccion
+		audio_interact.play()
+		
 	match tipo:
 		TipoObjeto.PUERTA_COMUN:
 			accion_puerta(jugador)
@@ -73,32 +80,54 @@ func accion_puerta(jugador):
 		jugador.mostrar_pensamiento("Está cerrada. Necesito una llave.")
 
 func accion_generador(jugador):
+	#si el generador esta reparado, avisamos con el pensamiento
 	if Global.generador_reparado:
-		jugador.mostrar_pensamiento("Ya está funcionando.")
+		if sfx_generador_arreglado:
+			audio_interact.stream = sfx_generador_arreglado
+			audio_interact.play()
+		jugador.mostrar_pensamiento("El motor ruge con fuerza. Ya está funcionando.")
 		return
 
-	if Global.tiene_fusible_rojo and Global.tiene_fusible_azul and Global.tiene_fusible_verde:
+	# --- REQUISITOS: 3 FUSIBLES + 2 ENGRANAJES ---
+	if Global.tiene_fusible_rojo and Global.tiene_fusible_azul and Global.tiene_fusible_verde and Global.tiene_engranaje and Global.tiene_engranaje_2:
+		
 		jugador.mostrar_pensamiento("La energía solo alcanza para el ascensor, no puedo encender las luces.")
 		Global.generador_reparado = true
-	else:
-		var faltantes = ""
-		if not Global.tiene_fusible_rojo: faltantes += "Rojo "
-		if not Global.tiene_fusible_azul: faltantes += "Azul "
-		if not Global.tiene_fusible_verde: faltantes += "Verde "
 		
-		jugador.mostrar_pensamiento("Faltan fusibles: " + faltantes)
+		# Sonido de éxito (Motor arrancando)
+		if sfx_generador_arreglado:
+			audio_interact.stream = sfx_generador_arreglado
+			audio_interact.play()
+		
+	else:
+		# --- LISTA DE COSAS QUE FALTAN ---
+		var faltantes = ""
+		
+		if not Global.tiene_fusible_rojo: faltantes += "Fusible Rojo, "
+		if not Global.tiene_fusible_azul: faltantes += "Fusible Azul, "
+		if not Global.tiene_fusible_verde: faltantes += "Fusible Verde, "
+		# Mostramos los engranajes por separado
+		if not Global.tiene_engranaje: faltantes += "Engranaje 1, "
+		if not Global.tiene_engranaje_2: faltantes += "Engranaje 2, "
+		
+		# Estética: Quitamos la última coma y espacio extra
+		if faltantes.length() > 0:
+			faltantes = faltantes.left(faltantes.length() - 2)
+		
+		jugador.mostrar_pensamiento("Faltan piezas: " + faltantes)
 
 func accion_ascensor(jugador):
 	if Global.generador_reparado:
 		jugador.mostrar_pensamiento("¡Por fin! Sácame de aquí.")
-		get_tree().quit() 
+		
+		await get_tree().create_timer(1.0).timeout
+		get_tree().change_scene_to_file("res://MenuPrincipal/escenas/ganado.tscn") 
 	else:
 		jugador.mostrar_pensamiento("No tiene energía. Debo arreglar el generador.")
 
 # --- SISTEMA DE MINIJUEGOS ---
 
 func abrir_minijuego(jugador):
-	# Validaciones iniciales: zi ya tenemos el premio, solo damos feedback y salimos
 	if tipo == TipoObjeto.TV_NAVES and Global.tiene_fusible_azul:
 		jugador.mostrar_pensamiento("La TV ya me soltó un fusible azul.")
 		return
@@ -108,7 +137,6 @@ func abrir_minijuego(jugador):
 
 	if minijuego_abierto or escena_minijuego == null: return
 
-	# GUARDAMOS LA REFERENCIA DEL JUGADOR
 	jugador_actual = jugador 
 
 	print("Iniciando minijuego...")
@@ -136,12 +164,10 @@ func _al_terminar_minijuego(victoria: bool):
 	if victoria:
 		entregar_recompensa()
 	else:
-		# Feedback opcional al perder
 		if jugador_actual:
 			jugador_actual.mostrar_pensamiento("Maldición, casi lo tenía...")
 
 func entregar_recompensa():
-	#la variable 'jugador_actual' para mostrar el pensamiento
 	match tipo:
 		TipoObjeto.TV_NAVES:
 			if not Global.tiene_fusible_azul:
@@ -154,6 +180,3 @@ func entregar_recompensa():
 				Global.tiene_fusible_verde = true
 				if jugador_actual:
 					jugador_actual.mostrar_pensamiento("¡Genial! Encontré un fusible VERDE en la mesa.")
-	
-	# Limpieza de referencia por seguridad
-	#jugador_actual = null (no note ningun cambio de usar este o nel)

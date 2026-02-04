@@ -1,10 +1,13 @@
 [gd_scene format=3 uid="uid://dkp7shm5rilws"]
 
 [ext_resource type="Script" uid="uid://csdrmj6llcmo" path="res://personajes/Player/Player.gd" id="1_k53q1"]
+[ext_resource type="AudioStream" uid="uid://cmgtho6k75mcl" path="res://Audio/pasos.wav" id="2_5xxl2"]
 [ext_resource type="Texture2D" uid="uid://c8nfewl8t0fvl" path="res://personajes/Player/Sprites/idle.png" id="2_fhl08"]
+[ext_resource type="AudioStream" uid="uid://jakpvdtmi3ct" path="res://Audio/AttackStrong.ogg" id="3_6g24w"]
 [ext_resource type="Texture2D" uid="uid://dhih3pca53kig" path="res://personajes/Player/Sprites/run.png" id="3_vtle1"]
 [ext_resource type="Texture2D" uid="uid://dqy53glralm0a" path="res://personajes/Player/Sprites/sit.png" id="4_od3ui"]
 [ext_resource type="Texture2D" uid="uid://c84qyqvjfasc2" path="res://personajes/Player/Sprites/walk.png" id="5_00tjw"]
+[ext_resource type="FontFile" uid="uid://dm2q3hs0qi0b8" path="res://MenuPrincipal/assets/imagenes/Kenney Pixel.ttf" id="8_6g24w"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_tegii"]
 atlas = ExtResource("2_fhl08")
@@ -497,22 +500,32 @@ fill = 1
 fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(1, 0.5)
 
+[sub_resource type="FontVariation" id="FontVariation_6g24w"]
+base_font = ExtResource("8_6g24w")
+spacing_glyph = 1
+
 [sub_resource type="LabelSettings" id="LabelSettings_e4ro6"]
-font_size = 8
-font_color = Color(0.043137256, 0, 0.3254902, 1)
+paragraph_spacing = 2.0
+font = SubResource("FontVariation_6g24w")
+outline_size = 2
+outline_color = Color(0.103743516, 0.10374353, 0.103743516, 1)
+shadow_color = Color(0, 0, 0, 0.37254903)
+shadow_offset = Vector2(2, 2)
 
 [node name="Jugador" type="CharacterBody2D" unique_id=1757664187]
 z_index = 20
 y_sort_enabled = true
 scale = Vector2(0.57, 0.57)
 script = ExtResource("1_k53q1")
-vidas = 5
+energia_luz = 1.5
+sfx_pasos = Array[AudioStream]([ExtResource("2_5xxl2")])
+sfx_dano = ExtResource("3_6g24w")
+usar_suavizado_camara = false
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1145634774]
 position = Vector2(0, -26.315788)
 sprite_frames = SubResource("SpriteFrames_onrkg")
-animation = &"idle_down"
-frame_progress = 0.468797
+animation = &"walk"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=791834332]
 position = Vector2(-0.07017517, -2.1929815)
@@ -558,10 +571,13 @@ texture = SubResource("GradientTexture2D_om3br")
 
 [node name="LabelPensamiento" type="Label" parent="." unique_id=565420614]
 visible = false
+z_index = 35
 offset_left = -221.05264
 offset_top = -84.210526
 offset_right = 219.94736
 offset_bottom = -61.210526
 label_settings = SubResource("LabelSettings_e4ro6")
 horizontal_alignment = 1
-vertical_alignment = 2
+vertical_alignment = 1
+
+[node name="AudioPlayer" type="AudioStreamPlayer" parent="." unique_id=221819173]

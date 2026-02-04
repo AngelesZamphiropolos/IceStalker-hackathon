@@ -1,0 +1,118 @@
+[gd_scene format=3 uid="uid://dxppmgm8sivqb"]
+
+[ext_resource type="Script" uid="uid://d4hdlq1ik5hpl" path="res://MenuPrincipal/scripts/menu.gd" id="1_6cq3m"]
+[ext_resource type="Texture2D" uid="uid://jchh347p1wu3" path="res://MenuPrincipal/assets/imagenes/WhatsApp Image 2026-02-01 at 10.32.09.jpeg" id="2_5t3kx"]
+[ext_resource type="AudioStream" uid="uid://dq83aunfw3h0t" path="res://Audio/musica_para_menu (mp3cut.net).wav" id="2_xupyh"]
+[ext_resource type="AudioStream" uid="uid://cvocmo58u2akv" path="res://MenuPrincipal/assets/Sonidos/bong_001.ogg" id="3_56ah5"]
+[ext_resource type="FontFile" uid="uid://dm2q3hs0qi0b8" path="res://MenuPrincipal/assets/imagenes/Kenney Pixel.ttf" id="4_xqndx"]
+[ext_resource type="VideoStream" uid="uid://c235e45vdbqog" path="res://Videos/VideoPengu.ogv" id="6_ojcdi"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wb87p"]
+bg_color = Color(0.2901961, 0.2901961, 0.2901961, 0.40784314)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qtdlt"]
+
+[node name="menu" type="Control" unique_id=333910206]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_6cq3m")
+musica_menu = ExtResource("2_xupyh")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=760189452]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -7.0
+offset_right = -7.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.17573781, 0.17573781, 0.17573781, 1)
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=742810900]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 3.0
+offset_right = 3.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_5t3kx")
+expand_mode = 1
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=746166123]
+stream = ExtResource("3_56ah5")
+autoplay = true
+
+[node name="Label" type="Label" parent="." unique_id=2122154575]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.085
+anchor_bottom = 0.085
+offset_left = 18.0
+offset_top = 23.05
+offset_right = 143.0
+offset_bottom = 53.05
+size_flags_horizontal = 4
+size_flags_vertical = 0
+theme_override_fonts/font = ExtResource("4_xqndx")
+theme_override_font_sizes/font_size = 30
+text = "Ice     Stalker"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=503128016]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -219.0
+offset_top = -30.0
+offset_right = -141.0
+offset_bottom = 73.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 9
+
+[node name="Jugar" type="Button" parent="VBoxContainer" unique_id=759069864]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_wb87p")
+theme_override_styles/hover = SubResource("StyleBoxFlat_qtdlt")
+text = "Jugar"
+flat = true
+
+[node name="Opciones" type="Button" parent="VBoxContainer" unique_id=1704072549]
+layout_mode = 2
+text = "opciones"
+flat = true
+
+[node name="Salir" type="Button" parent="VBoxContainer" unique_id=2108504320]
+layout_mode = 2
+size_flags_vertical = 8
+theme_override_constants/h_separation = 10
+text = "Salir"
+flat = true
+
+[node name="MusicaFondo" type="AudioStreamPlayer" parent="." unique_id=671355681]
+
+[node name="VideoIntro" type="VideoStreamPlayer" parent="." unique_id=1823507664]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(1.1, 1.1)
+stream = ExtResource("6_ojcdi")
+expand = true
+
+[connection signal="pressed" from="VBoxContainer/Jugar" to="." method="_on_jugar_pressed"]
+[connection signal="pressed" from="VBoxContainer/Opciones" to="." method="_on_opciones_pressed"]
+[connection signal="pressed" from="VBoxContainer/Salir" to="." method="_on_salir_pressed"]

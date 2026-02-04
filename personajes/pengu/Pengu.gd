@@ -8,38 +8,36 @@ extends CharacterBody2D
 
 @export_group("IA")
 @export var rango_patrulla: float = 500.0
-@export var distancia_temblor: float = 550.0 # Rango aumentado para sentirlo antes
+@export var distancia_temblor: float = 550.0
+
+@export_group("Audio")
+@export var sfx_grito: AudioStream 
 
 # --- REFERENCIAS (NODOS) ---
 @onready var nav_agent: NavigationAgent2D = $NavigationAgent2D
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
-@onready var detection_area: Area2D = $DetectionArea      # Visión
-@onready var hitbox_ataque: Area2D = $HitboxAtaque        # Daño
+@onready var detection_area: Area2D = $DetectionArea      
+@onready var hitbox_ataque: Area2D = $HitboxAtaque        
+@onready var audio_susto: AudioStreamPlayer2D = $AudioSusto 
 
 # --- MÁQUINA DE ESTADOS ---
 enum Estado { PATRULLAR, PERSEGUIR, HUIR }
 var estado_actual = Estado.PATRULLAR
 var objetivo: Node2D = null 
 
-# Variables internas
 var tiempo_huida_restante: float = 0.0
 var duracion_huida: float = 2.5 
-var ultimo_estado_log: int = -1 # Para evitar spam en consola
+var ultimo_estado_log: int = -1 
 
 func _ready():
-	# Validación de seguridad para evitar crashes
 	if not nav_agent or not detection_area or not hitbox_ataque:
-		printerr("[ERROR] Faltan nodos esenciales en el Pingüino.")
 		set_physics_process(false) 
 		return
 	
-	# Configuración de navegación
 	nav_agent.path_desired_distance = 20.0
 	nav_agent.target_desired_distance = 10.0
 	
-	# Esperar inicialización del mapa
 	await get_tree().physics_frame
-	print("[IA] Pingüino operativo y patrullando.")
 	buscar_nuevo_punto_patrulla()
 
 func _physics_process(delta):
@@ -53,10 +51,9 @@ func _physics_process(delta):
 		Estado.PERSEGUIR:
 			if is_instance_valid(objetivo):
 				nav_agent.target_position = objetivo.global_position
-				procesar_ambiente_terror() # Temblor
+				procesar_ambiente_terror()
 				chequear_ataque()
 			else:
-				# Si el objetivo desaparece, volver a patrullar
 				cambiar_estado(Estado.PATRULLAR)
 
 		Estado.HUIR:
@@ -92,33 +89,23 @@ func buscar_nuevo_punto_patrulla():
 
 func chequear_ataque():
 	var cuerpos = hitbox_ataque.get_overlapping_bodies()
-	
 	for cuerpo in cuerpos:
-		# FIX: para que el pendejo no se detecte solo
-		if cuerpo == self: 
-			continue
-			
+		if cuerpo == self: continue
 		if cuerpo == objetivo:
 			atacar()
 			break
 
 func atacar():
 	if objetivo.has_method("recibir_dano"):
-		print("[COMBATE] Atacando a: ", objetivo.name)
 		objetivo.recibir_dano()
-		
-		# Feedback de golpe fuerte
 		if objetivo.has_method("temblar"):
 			objetivo.temblar(8.0) 
-			
 		iniciar_huida()
 
 func iniciar_huida():
 	cambiar_estado(Estado.HUIR)
 	tiempo_huida_restante = duracion_huida
-	objetivo = null # Olvidamos al jugador momentáneamente
-	
-	# Correr a un punto aleatorio lejos
+	objetivo = null 
 	buscar_nuevo_punto_patrulla()
 
 func procesar_huida(delta):
@@ -127,51 +114,53 @@ func procesar_huida(delta):
 		cambiar_estado(Estado.PATRULLAR)
 		buscar_nuevo_punto_patrulla()
 
-# --- SISTEMA DE VISIÓN ---
+# --- SISTEMA DE VISIÓN (JUMPSCARE) ---
 
 func _on_detection_area_body_entered(body):
 	if estado_actual == Estado.HUIR: return
-	
-	# Filtros de seguridad
 	if body == self or "colisiones" in body.name: return
 
-	# Detección del Jugador
 	if body.name == "Jugador" or body.name == "Player" or body.is_in_group("Jugador"):
-		print(">>> [IA] Jugador detectado. Iniciando persecución. <<<")
 		objetivo = body
 		cambiar_estado(Estado.PERSEGUIR)
+		
+		# REPRODUCIR SONIDO FUERTE (+24 dB)
+		if sfx_grito:
+			audio_susto.stream = sfx_grito
+			audio_susto.volume_db = 24.0
+			audio_susto.play()
+		
+		# TEMBLOR VIOLENTO
+		if objetivo.has_method("temblar"):
+			objetivo.temblar(15.0) 
 
 func _on_detection_area_body_exited(body):
 	if body == objetivo and estado_actual != Estado.HUIR:
-		print("[IA] Objetivo perdido de vista.")
 		objetivo = null
+		
+		# --- CORRECCIÓN ---
+		# Quitamos el 'audio_susto.stop()'
+		# Ahora el sonido seguirá reproduciéndose solo hasta que termine el archivo
+		
 		cambiar_estado(Estado.PATRULLAR)
 		buscar_nuevo_punto_patrulla()
 
-# --- EFECTOS Y AMBIENTE ---
+# --- EFECTOS ---
 
 func procesar_ambiente_terror():
 	if not objetivo: return
-	
 	var distancia = global_position.distance_to(objetivo.global_position)
-	
-	# Rango ampliado a 550px para generar tensión antes
 	if distancia < distancia_temblor:
-		# Fórmula ajustada: (Max - Actual) * Factor suave
-		# Lejos: Tiembla poco (0.5). Cerca: Tiembla fuerte (5.0)
 		var fuerza = (distancia_temblor - distancia) * 0.015
-		
 		if objetivo.has_method("temblar"):
 			objetivo.temblar(fuerza)
 
 func animar_pingui():
 	if velocity.length() > 5:
-		# Prioridad Horizontal
 		if abs(velocity.x) > abs(velocity.y):
 			sprite.play("walk") 
 			sprite.flip_h = (velocity.x < 0)
 		else:
-			# Vertical
 			if velocity.y < 0: sprite.play("walk_up")
 			else: sprite.play("walk_down")
 	else:
@@ -184,5 +173,4 @@ func cambiar_estado(nuevo_estado):
 
 func _imprimir_cambio_estado():
 	if estado_actual != ultimo_estado_log:
-		print("[ESTADO] ", Estado.keys()[estado_actual])
 		ultimo_estado_log = estado_actual

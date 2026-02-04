@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dtyx857ovj2u4"
+path="res://.godot/imported/sonidopengu (mp3cut.net).mp3-32ee6561d3e0835e2642029d45eb659e.mp3str"
+
+[deps]
+
+source_file="res://Audio/sonidopengu (mp3cut.net).mp3"
+dest_files=["res://.godot/imported/sonidopengu (mp3cut.net).mp3-32ee6561d3e0835e2642029d45eb659e.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
