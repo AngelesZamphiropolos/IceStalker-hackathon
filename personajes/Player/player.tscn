@@ -572,10 +572,10 @@ texture = SubResource("GradientTexture2D_om3br")
 [node name="LabelPensamiento" type="Label" parent="." unique_id=565420614]
 visible = false
 z_index = 35
-offset_left = -221.05264
-offset_top = -84.210526
-offset_right = 219.94736
-offset_bottom = -61.210526
+offset_left = -87.7193
+offset_top = -101.75439
+offset_right = 86.614075
+offset_bottom = -78.75439
 label_settings = SubResource("LabelSettings_e4ro6")
 horizontal_alignment = 1
 vertical_alignment = 1

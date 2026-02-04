@@ -56,6 +56,29 @@ func _ready():
 		luz.energy = energia_luz
 	
 	sprite_animado.frame_changed.connect(_on_frame_changed)
+	
+	# --- NUEVO: INTRODUCCIÓN NARRATIVA ---
+	# 1. Bloqueamos al personaje para que sea una "cinemática"
+	input_bloqueado = true 
+	
+	# 2. Esperamos un segundo para que el jugador se ubique
+	await get_tree().create_timer(1.0).timeout
+	
+	# 3. Secuencia de pensamientos (La historia)
+	mostrar_pensamiento("Ugh... mi cabeza... \n ¿Qué hora es?")
+	await get_tree().create_timer(4.0).timeout # Esperamos a que termine de leer
+	
+	mostrar_pensamiento("Me quedé dormido estudiando \npara el final... ¡Maldición!")
+	await get_tree().create_timer(4.0).timeout
+	
+	mostrar_pensamiento("Todo está cerrado y oscuro. \nLas escaleras de emergencia estaban \n bloqueadas...")
+	await get_tree().create_timer(4.5).timeout
+	
+	mostrar_pensamiento("Tengo que bajar por el ascensor. \nEspero que aún haya energía.")
+	await get_tree().create_timer(4.0).timeout
+	
+	# 4. ¡A JUGAR! Liberamos al personaje
+	input_bloqueado = false
 
 func _process(delta):
 	if Input.is_action_just_pressed("ui_cancel") or Input.is_key_pressed(KEY_ESCAPE):
@@ -208,43 +231,33 @@ func _determinar_direccion_y_flip(dir: Vector2) -> String:
 # --- SISTEMA DE INTERACCIÓN ---
 
 func mostrar_pensamiento(texto: String):
-	# 1. Si ya hay una animación ocurriendo, la matamos para empezar la nueva
+	# 1. Limpieza de animación anterior
 	if tween_pensamiento and tween_pensamiento.is_valid():
 		tween_pensamiento.kill()
 	
 	# 2. Configuración Inicial
 	label_pensamiento.text = texto
 	label_pensamiento.visible = true
-	label_pensamiento.modulate.a = 1.0      # Asegurar que sea visible
-	label_pensamiento.visible_ratio = 0.0   # Empezamos con 0 letras visibles
+	label_pensamiento.modulate.a = 1.0
+	label_pensamiento.visible_ratio = 0.0
 	
-	# 3. Creación de la Secuencia (La Magia)
+	# 3. Creación de la Secuencia
 	tween_pensamiento = create_tween()
 	
-	# A) Efecto de escritura 
+	# A) Efecto de escritura (0.7 segundos)
 	tween_pensamiento.tween_property(label_pensamiento, "visible_ratio", 1.0, 0.7)
 	
-	# B) Esperar para leer (Calculamos tiempo basado en longitud del texto + 1.5s base)
-	# Así los textos largos se quedan más tiempo en pantalla
-	var tiempo_lectura = 3 + (texto.length() * 0.1)
+	# B) Esperar para leer (Tiempo calculado)
+	var tiempo_lectura = 1.5 + (texto.length() * 0.1)
 	tween_pensamiento.tween_interval(tiempo_lectura)
 	
-	# C) Desvanecer suavemente hacia arriba (efecto fantasma)
-	tween_pensamiento.set_parallel(true)
+	# C) Desvanecer suavemente (1.0 segundo)
 	tween_pensamiento.tween_property(label_pensamiento, "modulate:a", 0.0, 1.0)
 	
 	# D) Apagar al final
-	tween_pensamiento.set_parallel(false)
+	# Al ser secuencial, esto ahora espera 100% seguro a que termine el desvanecimiento
 	tween_pensamiento.tween_callback(func(): label_pensamiento.visible = false)
 	
-	label_pensamiento.text = texto
-	label_pensamiento.visible = true
-	label_pensamiento.modulate.a = 1.0 
-	
-	var tween = create_tween()
-	tween.tween_interval(2.0) 
-	tween.tween_property(label_pensamiento, "modulate:a", 0.0, 0.5)
-	tween.tween_callback(func(): label_pensamiento.visible = false)
 
 func manejar_acciones():
 	if Input.is_action_just_pressed("interactuar"):
