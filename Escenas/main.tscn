@@ -55,7 +55,7 @@ textura_del_item = ExtResource("8_ktoa8")
 [node name="ItemGenerico6" parent="." unique_id=1464825355 instance=ExtResource("4_7xwpo")]
 position = Vector2(858, 113)
 scale = Vector2(0.05, 0.05)
-tipo_de_item = 4
+tipo_de_item = 5
 textura_del_item = ExtResource("5_2ia52")
 
 [node name="Interactuable" parent="." unique_id=1601080887 instance=ExtResource("11_b1m0k")]
