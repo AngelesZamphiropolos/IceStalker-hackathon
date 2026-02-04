@@ -1,80 +1,91 @@
 extends CharacterBody2D
 
-# --- CONFIGURACIÓN DE COMPORTAMIENTO ---
+# --- configuración de comportamiento ---
+# ajustes de velocidad para que se sienta distinto en cada fase
 @export_group("Velocidades")
-@export var velocidad_normal: float = 95.0
-@export var velocidad_persecucion: float = 120.0
-@export var velocidad_huida: float = 160.0
+@export var velocidad_normal: float = 95.0   # patrulla tranqui
+@export var velocidad_persecucion: float = 120.0 # cuando te ve se pone las pilas
+@export var velocidad_huida: float = 160.0 # corre rápido después de pegar (hit and run)
 
 @export_group("IA")
-@export var rango_patrulla: float = 500.0
-@export var distancia_temblor: float = 550.0 # Rango aumentado para sentirlo antes
+@export var rango_patrulla: float = 500.0 # qué tan lejos se va a pasear
+@export var distancia_temblor: float = 550.0 # a partir de acá empieza a temblar la cámara
 
-# --- REFERENCIAS (NODOS) ---
+@export_group("Audio")
+@export var sfx_grito: AudioStream 
+
+# --- referencias (nodos) ---
+# nav_agent es clave, es el gps para que no se choque con las paredes
 @onready var nav_agent: NavigationAgent2D = $NavigationAgent2D
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
-@onready var detection_area: Area2D = $DetectionArea      # Visión
-@onready var hitbox_ataque: Area2D = $HitboxAtaque        # Daño
+@onready var detection_area: Area2D = $DetectionArea       
+@onready var hitbox_ataque: Area2D = $HitboxAtaque        
+@onready var audio_susto: AudioStreamPlayer2D = $AudioSusto 
 
-# --- MÁQUINA DE ESTADOS ---
+# --- máquina de estados ---
+# lógica básica para organizar el cerebro del enemigo
 enum Estado { PATRULLAR, PERSEGUIR, HUIR }
 var estado_actual = Estado.PATRULLAR
 var objetivo: Node2D = null 
 
-# Variables internas
 var tiempo_huida_restante: float = 0.0
 var duracion_huida: float = 2.5 
-var ultimo_estado_log: int = -1 # Para evitar spam en consola
+var ultimo_estado_log: int = -1 
 
 func _ready():
-	# Validación de seguridad para evitar crashes
+	# check de seguridad para que no explote si falta algo
 	if not nav_agent or not detection_area or not hitbox_ataque:
-		printerr("[ERROR] Faltan nodos esenciales en el Pingüino.")
 		set_physics_process(false) 
 		return
 	
-	# Configuración de navegación
+	# ajustes finos del pathfinding
 	nav_agent.path_desired_distance = 20.0
 	nav_agent.target_desired_distance = 10.0
 	
-	# Esperar inicialización del mapa
+	# hay que esperar un frame de físicas para que el mapa se cargue bien, sino tira error
 	await get_tree().physics_frame
-	print("[IA] Pingüino operativo y patrullando.")
 	buscar_nuevo_punto_patrulla()
 
 func _physics_process(delta):
 	_imprimir_cambio_estado()
 	
+	# el cerebro principal: decide qué hacer según el estado
 	match estado_actual:
 		Estado.PATRULLAR:
+			# si llegó a destino, busca otro punto random
 			if nav_agent.is_navigation_finished():
 				buscar_nuevo_punto_patrulla()
 				
 		Estado.PERSEGUIR:
 			if is_instance_valid(objetivo):
+				# actualiza el gps a la posición del jugador todo el tiempo
 				nav_agent.target_position = objetivo.global_position
-				procesar_ambiente_terror() # Temblor
+				procesar_ambiente_terror()
 				chequear_ataque()
 			else:
-				# Si el objetivo desaparece, volver a patrullar
+				# si el jugador desaparece, vuelve a patrullar
 				cambiar_estado(Estado.PATRULLAR)
 
 		Estado.HUIR:
 			procesar_huida(delta)
 
+	# mover y animar siempre al final
 	aplicar_movimiento()
 	animar_pingui()
 
-# --- LÓGICA DE MOVIMIENTO ---
+# --- lógica de movimiento ---
 
 func aplicar_movimiento():
+	# si ya llegamos, frenamos
 	if nav_agent.is_navigation_finished():
 		velocity = Vector2.ZERO
 		return
 
+	# preguntamos al nav_agent cuál es el siguiente paso
 	var siguiente_pos = nav_agent.get_next_path_position()
 	var direccion = global_position.direction_to(siguiente_pos)
 	
+	# elegimos la velocidad según qué esté haciendo
 	var velocidad_final = velocidad_normal
 	match estado_actual:
 		Estado.PERSEGUIR: velocidad_final = velocidad_persecucion
@@ -84,105 +95,102 @@ func aplicar_movimiento():
 	move_and_slide()
 
 func buscar_nuevo_punto_patrulla():
+	# elige un punto al azar cerca de donde está
 	var range_x = randf_range(-rango_patrulla, rango_patrulla)
 	var range_y = randf_range(-rango_patrulla, rango_patrulla)
 	nav_agent.target_position = global_position + Vector2(range_x, range_y)
 
-# --- SISTEMA DE COMBATE ---
+# --- sistema de combate ---
 
 func chequear_ataque():
+	# revisa si el jugador está tocando la hitbox de ataque
 	var cuerpos = hitbox_ataque.get_overlapping_bodies()
-	
 	for cuerpo in cuerpos:
-		# FIX: para que el pendejo no se detecte solo
-		if cuerpo == self: 
-			continue
-			
+		if cuerpo == self: continue # no pegarse a sí mismo
 		if cuerpo == objetivo:
 			atacar()
 			break
 
 func atacar():
+	# aplica daño y sale corriendo (mecánica de golpe y fuga)
 	if objetivo.has_method("recibir_dano"):
-		print("[COMBATE] Atacando a: ", objetivo.name)
 		objetivo.recibir_dano()
-		
-		# Feedback de golpe fuerte
 		if objetivo.has_method("temblar"):
 			objetivo.temblar(8.0) 
-			
 		iniciar_huida()
 
 func iniciar_huida():
 	cambiar_estado(Estado.HUIR)
 	tiempo_huida_restante = duracion_huida
-	objetivo = null # Olvidamos al jugador momentáneamente
-	
-	# Correr a un punto aleatorio lejos
+	objetivo = null 
 	buscar_nuevo_punto_patrulla()
 
 func procesar_huida(delta):
+	# cuenta regresiva para dejar de huir
 	tiempo_huida_restante -= delta
 	if tiempo_huida_restante <= 0:
 		cambiar_estado(Estado.PATRULLAR)
 		buscar_nuevo_punto_patrulla()
 
-# --- SISTEMA DE VISIÓN ---
+# --- sistema de visión (jumpscare) ---
 
 func _on_detection_area_body_entered(body):
-	if estado_actual == Estado.HUIR: return
-	
-	# Filtros de seguridad
+	if estado_actual == Estado.HUIR: return # si está huyendo ignora al jugador
 	if body == self or "colisiones" in body.name: return
 
-	# Detección del Jugador
+	# detecta si es el jugador usando grupos
 	if body.name == "Jugador" or body.name == "Player" or body.is_in_group("Jugador"):
-		print(">>> [IA] Jugador detectado. Iniciando persecución. <<<")
 		objetivo = body
 		cambiar_estado(Estado.PERSEGUIR)
+		
+		# acá arranca el susto: sonido fuerte
+		if sfx_grito:
+			audio_susto.stream = sfx_grito
+			audio_susto.volume_db = 24.0 # volumen alto para asustar
+			audio_susto.play()
+		
+		# sacudón de cámara fuerte
+		if objetivo.has_method("temblar"):
+			objetivo.temblar(15.0) 
 
 func _on_detection_area_body_exited(body):
+	# si se escapó de la vista, volvemos a patrullar
 	if body == objetivo and estado_actual != Estado.HUIR:
-		print("[IA] Objetivo perdido de vista.")
 		objetivo = null
+		
+		# nota: no paramos el audio para que se desvanezca solo con la distancia
+		
 		cambiar_estado(Estado.PATRULLAR)
 		buscar_nuevo_punto_patrulla()
 
-# --- EFECTOS Y AMBIENTE ---
+# --- efectos ---
 
 func procesar_ambiente_terror():
 	if not objetivo: return
-	
+	# hace temblar la pantalla un poquito si está cerca, para meter tensión
 	var distancia = global_position.distance_to(objetivo.global_position)
-	
-	# Rango ampliado a 550px para generar tensión antes
 	if distancia < distancia_temblor:
-		# Fórmula ajustada: (Max - Actual) * Factor suave
-		# Lejos: Tiembla poco (0.5). Cerca: Tiembla fuerte (5.0)
 		var fuerza = (distancia_temblor - distancia) * 0.015
-		
 		if objetivo.has_method("temblar"):
 			objetivo.temblar(fuerza)
 
 func animar_pingui():
+	# lógica simple de animación según hacia dónde se mueve
 	if velocity.length() > 5:
-		# Prioridad Horizontal
 		if abs(velocity.x) > abs(velocity.y):
 			sprite.play("walk") 
 			sprite.flip_h = (velocity.x < 0)
 		else:
-			# Vertical
 			if velocity.y < 0: sprite.play("walk_up")
 			else: sprite.play("walk_down")
 	else:
 		sprite.play("idle")
 
-# --- UTILIDADES ---
+# --- utilidades ---
 
 func cambiar_estado(nuevo_estado):
 	estado_actual = nuevo_estado
 
 func _imprimir_cambio_estado():
 	if estado_actual != ultimo_estado_log:
-		print("[ESTADO] ", Estado.keys()[estado_actual])
 		ultimo_estado_log = estado_actual

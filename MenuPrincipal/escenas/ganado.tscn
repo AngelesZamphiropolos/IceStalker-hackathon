@@ -1,0 +1,80 @@
+[gd_scene format=3 uid="uid://cxn5wqnbi2q4e"]
+
+[ext_resource type="Texture2D" uid="uid://dmns3y8gw2wiu" path="res://MenuPrincipal/assets/imagenes/WhatsApp Image 2026-02-03 at 21.12.43.jpeg" id="1_6m6ia"]
+[ext_resource type="Script" uid="uid://bd6nglg3okk08" path="res://MenuPrincipal/scripts/ganado.gd" id="1_igfui"]
+[ext_resource type="AudioStream" uid="uid://dq83aunfw3h0t" path="res://Audio/musica_para_menu (mp3cut.net).wav" id="2_2i8kh"]
+[ext_resource type="FontFile" uid="uid://dm2q3hs0qi0b8" path="res://MenuPrincipal/assets/imagenes/Kenney Pixel.ttf" id="3_rhl15"]
+
+[node name="Ganado" type="Control" unique_id=1992892690]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_igfui")
+musica_menu = ExtResource("2_2i8kh")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1580483093]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TextureRect" type="TextureRect" parent="ColorRect" unique_id=1729269565]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_6m6ia")
+expand_mode = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ColorRect" unique_id=828402283]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Salir del juego" type="Button" parent="ColorRect/VBoxContainer" unique_id=1441606519]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 10
+text = "Salir del Juego
+"
+
+[node name="Salir al menu" type="Button" parent="ColorRect/VBoxContainer" unique_id=1083252850]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+text = "Menu Principal"
+
+[node name="Label" type="Label" parent="." unique_id=2068509052]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -256.0
+offset_top = -17.0
+offset_right = 256.0
+offset_bottom = 34.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("3_rhl15")
+theme_override_font_sizes/font_size = 32
+text = "HAS GANADO 
+(Proximadamente mas pisos en la version completa)"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=1100806380]
+
+[connection signal="pressed" from="ColorRect/VBoxContainer/Salir del juego" to="." method="_on_salir_del_juego_pressed"]
+[connection signal="pressed" from="ColorRect/VBoxContainer/Salir al menu" to="." method="_on_salir_al_menu_pressed"]

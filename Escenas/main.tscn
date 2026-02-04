@@ -15,6 +15,7 @@
 [ext_resource type="PackedScene" uid="uid://burqq2tdxm24x" path="res://minijuegos/nave/MinijuegoNave.tscn" id="14_c7rjx"]
 [ext_resource type="Texture2D" uid="uid://dyyq1m5hl7fnv" path="res://Escenas/herramientas/ascensor.png" id="14_i4rd6"]
 [ext_resource type="Texture2D" uid="uid://bltpayaeyi3hg" path="res://Escenas/herramientas/puerta1.png" id="15_7ndum"]
+[ext_resource type="AudioStream" uid="uid://ckfb7jhbk5pqs" path="res://Audio/se_acerca_penguin_musica.wav" id="16_c7rjx"]
 
 [node name="main" type="Node2D" unique_id=1527127327]
 
@@ -22,6 +23,14 @@
 
 [node name="Player" parent="." unique_id=1757664187 instance=ExtResource("2_7xwpo")]
 position = Vector2(455, 172)
+sfx_pasos = Array[AudioStream]([])
+sfx_dano = null
+
+[node name="Camera2D" parent="Player" index="3" unique_id=1998700670]
+limit_left = -17
+limit_top = 31
+limit_right = 1135
+limit_bottom = 1207
 
 [node name="Pengu" parent="." unique_id=1275163384 instance=ExtResource("3_2ia52")]
 position = Vector2(537, 971)
@@ -46,7 +55,7 @@ textura_del_item = ExtResource("8_ktoa8")
 [node name="ItemGenerico6" parent="." unique_id=1464825355 instance=ExtResource("4_7xwpo")]
 position = Vector2(858, 113)
 scale = Vector2(0.05, 0.05)
-tipo_de_item = 4
+tipo_de_item = 5
 textura_del_item = ExtResource("5_2ia52")
 
 [node name="Interactuable" parent="." unique_id=1601080887 instance=ExtResource("11_b1m0k")]
@@ -84,3 +93,9 @@ textura_objeto = ExtResource("15_7ndum")
 [node name="Interactuable7" parent="." unique_id=520251266 instance=ExtResource("11_b1m0k")]
 position = Vector2(824, 290)
 textura_objeto = ExtResource("15_7ndum")
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=1700184059]
+stream = ExtResource("16_c7rjx")
+autoplay = true
+
+[editable path="Player"]

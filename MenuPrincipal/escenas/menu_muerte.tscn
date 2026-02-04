@@ -1,0 +1,98 @@
+[gd_scene format=3 uid="uid://dfaan746ngmh4"]
+
+[ext_resource type="Script" uid="uid://culuiux1lbgsy" path="res://MenuPrincipal/scripts/menu_muerte.gd" id="1_s0dic"]
+[ext_resource type="Texture2D" uid="uid://cmd5aud6xeqcr" path="res://MenuPrincipal/assets/imagenes/234f5c7f-b611-404d-8386-3b2779c3fa15.jpg" id="2_sl6h5"]
+[ext_resource type="Script" uid="uid://dej6n1r63a2hg" path="res://MenuPrincipal/scripts/label.gd" id="3_owgp1"]
+[ext_resource type="AudioStream" uid="uid://cvocmo58u2akv" path="res://MenuPrincipal/assets/Sonidos/bong_001.ogg" id="4_mlbqb"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6226u"]
+bg_color = Color(11.594878, 0, 0, 1)
+
+[node name="menu muerte" type="Control" unique_id=1496386759]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_s0dic")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1358850106]
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer" unique_id=2036388296]
+use_parent_material = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -1.0
+offset_top = 2.0
+offset_right = -1.0
+offset_bottom = 2.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.18072194, 0.18072197, 0.18072197, 1)
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/ColorRect" unique_id=1331806682]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = -2.0
+offset_right = 1.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_sl6h5")
+expand_mode = 1
+
+[node name="Label" type="RichTextLabel" parent="CanvasLayer/ColorRect" unique_id=847175311]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -60.0
+offset_top = -72.0
+offset_right = 73.0
+offset_bottom = -23.0
+grow_horizontal = 2
+grow_vertical = 2
+bbcode_enabled = true
+text = "HAS MUERTO"
+script = ExtResource("3_owgp1")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/ColorRect" unique_id=1468591788]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.39900002
+anchor_top = 0.5
+anchor_right = 0.47400004
+anchor_bottom = 0.5
+offset_left = -18.520004
+offset_top = 11.0
+offset_right = 54.47998
+offset_bottom = 77.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="reintentar" type="Button" parent="CanvasLayer/ColorRect/VBoxContainer" unique_id=586696718]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_6226u")
+text = "Reintentar"
+flat = true
+
+[node name="salir al menu" type="Button" parent="CanvasLayer/ColorRect/VBoxContainer" unique_id=1176613234]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 8
+text = "Salir al Menu"
+flat = true
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=776743925]
+stream = ExtResource("4_mlbqb")
+
+[connection signal="pressed" from="CanvasLayer/ColorRect/VBoxContainer/reintentar" to="." method="_on_reintentar_pressed"]
+[connection signal="pressed" from="CanvasLayer/ColorRect/VBoxContainer/salir al menu" to="." method="_on_salir_al_menu_pressed"]

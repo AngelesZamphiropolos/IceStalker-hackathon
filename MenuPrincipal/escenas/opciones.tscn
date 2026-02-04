@@ -1,0 +1,80 @@
+[gd_scene format=3 uid="uid://ykbd2recl1br"]
+
+[ext_resource type="Script" uid="uid://cucmcff4si3vl" path="res://MenuPrincipal/scripts/opciones.gd" id="1_s8bbw"]
+[ext_resource type="Texture2D" uid="uid://jchh347p1wu3" path="res://MenuPrincipal/assets/imagenes/WhatsApp Image 2026-02-01 at 10.32.09.jpeg" id="2_4n5yr"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wb87p"]
+bg_color = Color(0.2901961, 0.2901961, 0.2901961, 0.40784314)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qtdlt"]
+
+[node name="opciones" type="Control" unique_id=333910206]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_s8bbw")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=760189452]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -7.0
+offset_right = -7.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.17573781, 0.17573781, 0.17573781, 1)
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=742810900]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 3.0
+offset_right = 3.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_4n5yr")
+expand_mode = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=503128016]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -219.0
+offset_top = -80.0
+offset_right = -141.0
+offset_bottom = 45.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 9
+
+[node name="Volumen" type="Button" parent="VBoxContainer" unique_id=759069864]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_wb87p")
+theme_override_styles/hover = SubResource("StyleBoxFlat_qtdlt")
+text = "Volumen"
+
+[node name="Resolucion" type="Button" parent="VBoxContainer" unique_id=1704072549]
+layout_mode = 2
+text = "Resolucion"
+
+[node name="Atras" type="Button" parent="VBoxContainer" unique_id=2108504320]
+layout_mode = 2
+size_flags_vertical = 8
+theme_override_constants/h_separation = 10
+text = "Atras"
+
+[connection signal="pressed" from="VBoxContainer/Volumen" to="." method="_on_jugar_pressed"]
+[connection signal="pressed" from="VBoxContainer/Resolucion" to="." method="_on_opciones_pressed"]
+[connection signal="pressed" from="VBoxContainer/Atras" to="." method="_on_salir_pressed"]
+[connection signal="pressed" from="VBoxContainer/Atras" to="." method="_on_atras_pressed"]

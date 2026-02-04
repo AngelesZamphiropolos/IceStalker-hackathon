@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://c64aec30x4ui3"]
 
 [ext_resource type="Script" uid="uid://cn1cu4jq4voc1" path="res://personajes/pengu/Pengu.gd" id="1_vlyhv"]
+[ext_resource type="AudioStream" uid="uid://dtyx857ovj2u4" path="res://Audio/sonidopengu (mp3cut.net).mp3" id="2_5x1gt"]
 [ext_resource type="Texture2D" uid="uid://cu6evxpk30025" path="res://personajes/pengu/Gemini_Generated_Image_axqrcqaxqrcqaxqr.png" id="2_ka03h"]
 [ext_resource type="Texture2D" uid="uid://d0ma7j87xsfdb" path="res://personajes/pengu/Pengu.png" id="3_b3k8w"]
 
@@ -166,6 +167,7 @@ size = Vector2(933.33325, 999.9999)
 z_index = 20
 scale = Vector2(0.045, 0.045)
 script = ExtResource("1_vlyhv")
+sfx_grito = ExtResource("2_5x1gt")
 
 [node name="RayCast2D" type="RayCast2D" parent="." unique_id=420111022]
 target_position = Vector2(0, 0)
@@ -206,6 +208,10 @@ monitorable = false
 position = Vector2(7.6293945e-06, 0)
 scale = Vector2(1.0000001, 1.0000001)
 shape = SubResource("RectangleShape2D_dkkff")
+
+[node name="AudioSusto" type="AudioStreamPlayer2D" parent="." unique_id=907828276]
+max_distance = 700.0
+attenuation = 6.276669
 
 [connection signal="body_entered" from="DetectionArea" to="." method="_on_detection_area_body_entered"]
 [connection signal="body_exited" from="DetectionArea" to="." method="_on_detection_area_body_exited"]

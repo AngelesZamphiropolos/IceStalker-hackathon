@@ -1,7 +1,9 @@
 [gd_scene format=3 uid="uid://4wxtnanuijrw"]
 
 [ext_resource type="Script" uid="uid://dsjn72wkvd7tn" path="res://Escenas/Scripts/InteractuableGenerico.gd" id="1_aaxgp"]
+[ext_resource type="AudioStream" uid="uid://dq2q16hmx3168" path="res://Audio/pickupCoin.wav" id="2_3koya"]
 [ext_resource type="Texture2D" uid="uid://cq0qifl1864q7" path="res://Escenas/herramientas/AlertaIcon.png" id="2_aaxgp"]
+[ext_resource type="AudioStream" uid="uid://d3gf5wwxo32f6" path="res://Audio/electricidad_sonido.wav" id="3_wxb7f"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_aaxgp"]
 radius = 25.0
@@ -12,6 +14,8 @@ size = Vector2(16, 27)
 [node name="Interactuable" type="Area2D" unique_id=1601080887]
 z_index = 19
 script = ExtResource("1_aaxgp")
+sfx_interaccion = ExtResource("2_3koya")
+sfx_generador_arreglado = ExtResource("3_wxb7f")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1540741550]
 
@@ -30,3 +34,5 @@ texture = ExtResource("2_aaxgp")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=1507807438]
 position = Vector2(0, 0.5)
 shape = SubResource("RectangleShape2D_wxb7f")
+
+[node name="AudioInteract" type="AudioStreamPlayer" parent="." unique_id=1198905284]

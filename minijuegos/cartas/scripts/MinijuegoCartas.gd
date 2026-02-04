@@ -1,6 +1,6 @@
 extends Control
 
-# --- CONFIGURACIÓN Y RECURSOS ---
+# --- configuración y recursos ---
 @export_group("Recursos Visuales")
 @export var dorso_carta: Texture2D 
 @export var imagenes_frente: Array[Texture2D] 
@@ -10,18 +10,18 @@ extends Control
 @onready var timer_juego = $Timer
 @export var label_tiempo: Label
 
-# --- ESTADO DEL JUEGO ---
+# --- estado del juego ---
 var cartas_levantadas = [] 
 var pares_encontrados = 0
 var total_pares = 6
-var bloqueo_input = false # Evita clicks locos mientras animamos
+var bloqueo_input = false # bandera para evitar input durante animaciones
 var juego_activo = true
 
-# Ajuste de resolución (640x360):
+# ajuste de resolución para cartas (640x360)
 var tamano_carta = Vector2(110, 85) 
 
 func _ready():
-	# Pausamos el juego principal para que no nos maten mientras resolvemos el puzzle
+	# pausa del árbol principal durante el puzzle
 	get_tree().paused = true
 	
 	if imagenes_frente.size() != 6:
@@ -32,14 +32,14 @@ func _ready():
 	generar_tablero()
 
 func _process(delta):
-	# Actualizamos el UI solo si el juego corre y tenemos la referencia del label válida
+	# actualización de interfaz de tiempo si el juego es válido
 	if juego_activo and timer_juego.time_left > 0 and label_tiempo:
 		label_tiempo.text = "Tiempo: %d" % ceil(timer_juego.time_left)
 
-# --- SISTEMA DE GENERACIÓN ---
+# --- sistema de generación ---
 
 func generar_tablero():
-	# Duplicamos las imágenes para tener los pares y barajamos
+	# duplicación de imágenes para crear pares y mezcla aleatoria
 	var mazo = []
 	for img in imagenes_frente:
 		mazo.append(img)
@@ -49,36 +49,36 @@ func generar_tablero():
 	for textura_secreto in mazo:
 		var carta = TextureButton.new()
 		
-		# Configuración del botón para que se comporte como carta
+		# configuración de propiedades del botón
 		carta.texture_normal = dorso_carta 
 		carta.ignore_texture_size = true   
 		carta.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 		carta.custom_minimum_size = tamano_carta 
 		
-		# El pivote al centro es obligatorio para que la animación de rotación no se descuadre
+		# ajuste de pivote al centro para rotación correcta
 		carta.pivot_offset = tamano_carta / 2 
 		
-		# Guardamos la info real en metadatos para no exponerla visualmente
+		# almacenamiento de datos lógicos en metadatos
 		carta.set_meta("imagen_frente", textura_secreto)
 		carta.set_meta("es_par", false)
 		
 		carta.pressed.connect(_al_tocar_carta.bind(carta))
 		grid.add_child(carta)
 
-# --- CORE GAMEPLAY ---
+# --- core gameplay ---
 
 func _al_tocar_carta(carta_tocada):
-	# Filtros de seguridad: si está bloqueado, pausado o la carta ya está lista, ignoramos
+	# validación de estado: ignora input si hay bloqueo o carta resuelta
 	if not juego_activo or bloqueo_input: return
 	if carta_tocada.get_meta("es_par") or carta_tocada in cartas_levantadas: return
 
-	# Añadimos a la memoria temporal
+	# registro en memoria temporal
 	cartas_levantadas.append(carta_tocada)
 
-	# Animación de entrada (Revelar)
+	# ejecución de animación de revelado
 	animar_voltear(carta_tocada, carta_tocada.get_meta("imagen_frente"))
 	
-	# Si tenemos dos cartas en memoria, bloqueamos input y validamos
+	# validación de par al tener dos cartas seleccionadas
 	if cartas_levantadas.size() == 2:
 		bloqueo_input = true
 		verificar_par()
@@ -87,7 +87,7 @@ func verificar_par():
 	var c1 = cartas_levantadas[0]
 	var c2 = cartas_levantadas[1]
 	
-	# Pequeño delay para que el jugador alcance a ver la segunda carta antes de validar
+	# espera breve para visualización
 	await get_tree().create_timer(0.2).timeout
 	
 	if c1.get_meta("imagen_frente") == c2.get_meta("imagen_frente"):
@@ -98,13 +98,13 @@ func verificar_par():
 func _procesar_acierto(c1, c2):
 	pares_encontrados += 1
 	
-	# Marcamos como resueltas y deshabilitamos interacción
+	# actualización de estado y desactivación de interacción
 	c1.set_meta("es_par", true)
 	c2.set_meta("es_par", true)
 	c1.disabled = true
 	c2.disabled = true
 	
-	# Feedback visual (verde sutil)
+	# feedback visual de éxito
 	c1.modulate = Color(0.6, 1, 0.6)
 	c2.modulate = Color(0.6, 1, 0.6)
 	
@@ -116,29 +116,29 @@ func _procesar_acierto(c1, c2):
 		ganar_juego()
 
 func _procesar_fallo(c1, c2):
-	# Damos 1 segundo para memorizar el error
+	# tiempo de espera para memorización
 	await get_tree().create_timer(1.0).timeout
 	
-	# Ocultamos de nuevo
+	# reversión de animación al dorso
 	animar_voltear(c1, dorso_carta)
 	animar_voltear(c2, dorso_carta)
 	
 	cartas_levantadas.clear()
 	bloqueo_input = false
 
-# --- ANIMACIONES ---
+# --- animaciones ---
 
 func animar_voltear(carta: TextureButton, textura_final: Texture2D):
-	# Simulamos un giro 3D :D
+	# simulación de rotación 3d mediante escala
 	var tween = create_tween()
 	tween.tween_property(carta, "scale:x", 0.0, 0.15).set_trans(Tween.TRANS_SINE)
 	tween.tween_callback(func(): carta.texture_normal = textura_final)
 	tween.tween_property(carta, "scale:x", 1.0, 0.15).set_trans(Tween.TRANS_SINE)
 
-# --- FLUJO DE CONTROL Y SALIDA ---
+# --- flujo de control y salida ---
 
 func _on_tiempo_agotado():
-	# Si se acaba el tiempo, reiniciamos el puzzle
+	# reinicio del tablero por timeout
 	reiniciar_tablero()
 
 func reiniciar_tablero():
@@ -150,7 +150,7 @@ func reiniciar_tablero():
 	bloqueo_input = false
 	timer_juego.start()
 	
-	# Esperamos un frame para asegurar que la limpieza de nodos terminó
+	# espera de frame para asegurar limpieza de nodos
 	await get_tree().process_frame
 	generar_tablero()
 
@@ -163,10 +163,9 @@ func ganar_juego():
 	cerrar_minijuego(true)
 
 func cerrar_minijuego(victoria: bool):
-	# Notificamos al Global el resultado
+	# emisión de resultado global
 	Global.minijuego_terminado.emit(victoria)
 	
-	# Importante: Devolver el control al juego principal antes de morir
-	# El que lea esto me debe 10.000 gs
+	# reactivación del árbol principal y liberación de memoria
 	get_tree().paused = false
 	queue_free()
